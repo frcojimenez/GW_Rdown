@@ -13,8 +13,8 @@ To fully and succesufully use all codes stored here, one needs to have the follo
 # Structure
 
 In this repository one can find: 
-* codes to generate the models 
-* data describing the QNM spectrum 
+* codes to generate the models.
+* data describing the QNM spectrum.
 * data resulting from fits informed by numerical relativiy (NR) waveforms. 
 
 Structure:

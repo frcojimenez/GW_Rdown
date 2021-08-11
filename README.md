@@ -1,7 +1,7 @@
 # The project
  
 The GW_Rdown project aims to produce accurate ringdown (RD) models that describe the final state of binary black hole (BBH) mergers. 
-The BH RD emerges as the late trail of radiation usually represented as a sum of damped sinusoids and their modelling is essential to produce tests of general relativity GR in its most extreme regime.  
+The BH RD emerges as the late trail of radiation usually represented as a sum of damped sinusoids and their modelling is essential to test general relativity (GR) in its most extreme regime.  
 
 # Prerequisites
 

@@ -5,7 +5,10 @@ The BH RD emerges as the late trail of radiation usually represented as a sum of
 
 # Structure
 
-In this repository one can find: i) codes to generate the models ii) data describing the QNM spectrum and iii) data resulting from fits informed by numerical relativiy (NR) waveforms. 
+In this repository one can find: 
+* codes to generate the models 
+* data describing the QNM spectrum 
+* data resulting from fits informed by numerical relativiy (NR) waveforms. 
 
 Structure:
 * ./codes :  -- Mathematica. It contains two classes of codes, both written in Mathematica. Rdown.nb and Rdown.m: these two codes contain the main functions                                      used to produce the RD models and ansätze (OvertoneModel), to compute the QNM frequencies and damping times (\[Omega]lmnPy) from                                    the python code [1] or to estimate the final mass and spin from the GW strain (FitRingdownGrid). 

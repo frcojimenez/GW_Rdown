@@ -1,6 +1,6 @@
 # The project
  
-The GW_Rdown project aims at producing accurate ringdown (RD) models that describe the final state of binary black hole mergers. 
+The GW_Rdown project aims at producing accurate ringdown (RD) models that describe the final state of binary black hole mergers. <br>
 The RD emerges as the late trail of radiation usually represented as a sum of damped sinusoids and its modelling is essential to test general relativity (GR) in its most extreme regime.  
 
 
@@ -20,8 +20,7 @@ In this repository one can find:
 * data describing the quasi-normal mode (QNM) spectrum;
 * data resulting from fits informed by numerical relativity (NR) waveforms;
 
-all from reference [6].
-
+all from reference [6].<br>
 Please refer to the above paper if using these codes and results; please also refer to the original works [2-4] describing the Mathematica code available at [5] on which the codes KerrQNMOvertone.ipynb and .nb are based, if using the latter codes.
 
 
@@ -49,10 +48,8 @@ The specificities of this version are described in [6] and include:
        memory-consuming built-in root-finding algorithm;
 * and a progressive increase of this number of steps over successive iterations along with a convergence criterion, that can be of use for modes for which Leaver's method is less efficient such as near the algebraically special Schwarzschild mode ω = - 2 *i*.
    
-The units convention also differs from [1-5] where the mass and maximal dimensionless spin are set to 1/2: in KerrQNMOvertones, units are set such that the mass of the black hole is 1.
-
+The units convention also differs from [1-5] where the mass and maximal dimensionless spin are set to 1/2: in KerrQNMOvertones, units are set such that the mass of the black hole is 1. <br>
 This version requires two close but distinct initial guesses for ωlmn.
-
 
 Note that this version has *not* been extensively tested for s ≠ -2 nor for l ≠ 2.
     

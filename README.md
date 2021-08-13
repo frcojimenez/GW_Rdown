@@ -9,6 +9,7 @@ The RD emerges as the late trail of radiation usually represented as a sum of da
 To fully and succesufully use all codes stored here, one needs to have the following codes and versions installed:
 * Python >= 3.0 along with the qnm package [7-8] and the numpy package;
 * Mathematica >= 11.0.
+
 The KerrQNMOvertones code is available in two versions that respectively require only the use of Python (without the need for the qnm package) or only the use of Mathematica.
 
 
@@ -18,6 +19,7 @@ In this repository one can find:
 * codes to generate the models;
 * data describing the quasi-normal mode (QNM) spectrum;
 * data resulting from fits informed by numerical relativity (NR) waveforms;
+
 all from reference [6].
 Please refer to the above paper if using these codes and results; please also refer to the original works [2-4] describing the Mathematica code available at [5] on which the codes KerrQNMOvertone.ipynb and .nb are based, if using the latter codes.
 

@@ -21,6 +21,7 @@ In this repository one can find:
 * data resulting from fits informed by numerical relativity (NR) waveforms;
 
 all from reference [6].<br>
+
 **Please refer to the above paper if using these codes and results; please also refer to the original works [2-4] describing the Mathematica code available at [5] on which the codes KerrQNMOvertone.ipynb and .nb are based, if using the latter codes.**
 
 

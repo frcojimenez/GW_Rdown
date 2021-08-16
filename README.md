@@ -35,6 +35,12 @@ Structure:
   * ./QNMdata. It contains the QNM data (tables) for the lmn = 228 and lmn = 229 co-rotating and lmn = 22(8-9) counter-rotating modes, as decribed in reference [6].
   * ./NRFits. NR fit results obtained by reference [6].                                  
 
+# The data/NRFits folder.
+
+You find a list of BBH_SXS_index folders each one corresponding to the 620 SXS NR ringdown fits produced in [6]. In each folder you will find three files:
+
+* massspin.dat: It contains the normalised final mass and the final dimensionless spin of the given simulation.
+* 
 
 # Description of KerrQNMOvertones.
 

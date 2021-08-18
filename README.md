@@ -22,14 +22,14 @@ In this repository one can find:
 
 all from reference [6].<br>
 
-**Please refer to the above paper if using these codes and results; please also refer to the original works [2-4] describing the Mathematica code available at [5] on which the codes KerrQNMOvertone.ipynb and .nb are based, if using the latter codes.**
+**Please refer to the above paper if using these codes and results; please also refer to the original works [2-4] describing the Mathematica code available at [5,9] on which the codes KerrQNMOvertone.ipynb and .nb are based, if using the latter codes.**
 
 
 Structure:
 * ./codes :  
   * Mathematica. It contains two classes of codes, both written in Mathematica. Rdown.nb and Rdown.m: these two (equivalent) codes contain the main functions                                      used to produce the RD models and ansätze (OvertoneModel), to compute the QNM frequencies and damping times (\\[Omega]lmnPy) from                                    the python code qnm [7-8] complemented by our tables for the (l=2,m=2,n=8,9) modes ([6]), or to estimate the final mass and spin from the GW strain (FitRingdownGrid). 
                                    Moreover, it also includes a code (KerrQNMOvertones) to compute the QNM spectrum from scratch based on the original code from 
-                                   [2-4] and available at [5]. 
+                                   [2-4] and available at [5,9]. 
   * Python. Same version of the KerrQNMOvertones code translated into Python language.
                                    
 * ./data :    
@@ -48,7 +48,7 @@ You find a list of BBH_SXS_index folders each one corresponding to the 620 SXS N
 
 This code allows for the computation of the (l,m,n) QNM complex frequency ωlmn and angular separation constant Almn for a spin-weigth-s perturbation of a Kerr (or Schwarzschild) black hole using Leaver's method [1].
 
-The code is based on the original Mathematica code from [2-4] available at [5]; please do refer to these original works and note that the code available at [5] also provides a computation of the angular and radial wavefunctions of the QNMs (not included here).
+The code is based on the original Mathematica code from [2-4] available at [5,9]; please do refer to these original works and note that the code available at [5,9] also provides a computation of the angular and radial wavefunctions of the QNMs (not included here).
 
 The specificities of this version are described in [6] and include:
 * the use of Leaver's inversions [1] in the calculation of the continued fractions for a more stable recovery of overtones;
@@ -80,3 +80,5 @@ Note that this version has *not* been extensively tested for s ≠ -2 nor for l 
 * [7] L. C. Stein, "qnm: A Python package for calculating Kerr quasinormal modes, separation constants, and spherical-spheroidal mixing coefficients",  J. Open Source Softw. **4**:1683 (2019). [arXiv:1908.10377]
 
 * [8] https://pypi.org/project/qnm/ 
+
+* [9] https://centra.tecnico.ulisboa.pt/network/grit/files/ringdown/  

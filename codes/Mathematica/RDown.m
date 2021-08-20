@@ -46,9 +46,11 @@ InterpolationDomain::usage="InterpolationDomain[IntFunction]. Outputs the domain
 positionDuplicates::usage="positionDuplicates[list_]. Finds the duplicate elements in your list";
 \[Omega]lmn::usage="\[Omega]lmn[l_,m_,n_,Mf_,af_,ModesData\[Rule]{}]. It computes the lmn frequency and damping time for a BBH with parameters {Mf,af}. ModesData can be feed with a datafile containing the modes data, which it speeds up the computation. An optional SpinWeight (by default -2) can be given. Warning: a negative spin weight - |s| is always assumed for any input SpinWeight s, and m is always replaced by |m|.";
 \[Omega]lmnPy::usage="\[Omega]lmnPy[l_,m_,n_,Mf_,af_]. It computes the lmn frequency and damping time for a BBH with parameters {Mf,af} from the python qnm package. An optional SpinWeight (by default -2) can be given, and its sign is accounted for."
+\[Omega]22nTable::usage="\[Omega]lmnPy[l_,m_,n_,Mf_,af_]. It computes the lmn frequency and damping time for a BBH with parameters {Mf,af} from the python qnm package. An optional SpinWeight (by default -2) can be given, and its sign is accounted for.";
 DetectConvergence::usage="DetectConvergence[dampsignal_,\[Tau]_,OptionsPattern[{Test\[Rule]FindMaximum}]]. Given a damped signal and a damping time, it estimaes a time t0 where the decay is order 1%";
 OvertoneModel::usage="OvertoneModelV[overtones_,pars_,ti_,OptionsPattern[]]. It provides a RDown ansatz for the desired number 'overtones' with parameters {Mf,af}.";
 FitRingdown::usage="FitRingdown[data_,nmax_,truepars_]";
+FitRingdownGrid::usage="FitRingdownGrid[thedata_,nmax_,thetmin_,massrange_,OptionsPattern[]]. Find the best fit parameters on mass and spin by running the code on mesh refined grid";
 OvertoneFromReImToComplex::usage="OvertoneFromReImToComplex[{xi}, {xi,yi}]. It converts a {xi,yi} ansatz to an xi ansatz. xi are the variables and {xi, yi} the numeric values";
 AICcRes::usage="AICRes[residuals_,coeff_]. It computes the AICc value from the residuals given the number of coefficients 'coeff' ";
 BICRes::usage="BICRes[residuals_,coeff_]. It computes the BIC value from the residuals given the number of coefficients 'coeff' ";
@@ -69,7 +71,8 @@ CorrelationMatrix::usage="CovarianceMatrix[res_,vars_,pars]. It computes the cor
 FisherMatrix::usage="FisherMatrix[f_,par_List?VectorQ,truepars_List?VectorQ,OptionsPattern[]]";
 LogLikelihoodDist::usage="Likelihood[data_,ansatz_,vars_,x_]. It computes the likelihood."
 ComputeFitBands::usage="ComputeFitBands[data_,ansatz_,vars_,pars_,ConfidenceLevel\[Rule]val]. It computes the fit ConfidentBands at the val confidence level."
-
+SXSWaveMass::usage="SXSWaveMass[data_]";
+SXSWaveSpin::usage="SXSWaveSpin[data_,initialJ_,mymodes_]";
 
 tPhys::usage="tPhys[t,M]";
 tNR::usage="tNR[t,M]";
@@ -286,41 +289,47 @@ NMinimize[likelihood,vars,Method->method,MaxIterations->maxit,AccuracyGoal->accg
 ];
 
 
-GetAsymptoticMultiMode[h5file_,order_,list_,OptionsPattern[{"Verbose"->False,"TiReIm"->True,"ZeroAlign"->False,"ReSample"->True,"Sampling"->0.5}]]:=Module[{datasets,targetstring,pos,VPrint,
-l,m,positions,timreim,tt,re,im,import,zeroalign,tmax,resample,wave,sampling},
+GetAsymptoticMultiMode[h5file_,order_,list_,OptionsPattern[{"Verbose"->False,"TiReIm"->True,"ZeroAlign"->False,"ReSample"->True,"Sampling"->0.5,"Code"->"SXS"}]]:=Module[{datasets,code,targetstring,pos,VPrint,
+l,m,positions,timreim,tt,re,im,import,zeroalign,tmax,resample,wave,sampling,targetstringt,ritrhs,ritrhsphsi,ritrhsampsi,importa},
 VPrint[expr___]:=If[OptionValue["Verbose"],Print[expr]];
 timreim=OptionValue["TiReIm"];
 zeroalign=OptionValue["ZeroAlign"];
 resample=OptionValue["ReSample"];
 sampling=OptionValue["Sampling"];
+code=OptionValue["Code"];
                                                         
 datasets=Import[h5file,"Datasets"];
 
-positions=Table[
+positions=Flatten@Table[
                  If[NumberQ[order],l=list[[i,1]];
                   m=list[[i,2]];
-                  targetstring="/Extrapolated_N"<>ToString[order]<>".dir/Y_l"<>ToString[l]<>"_m"<>ToString[m]<>".dat";
+                  If[code=="SXS",
+                  targetstring="/Extrapolated_N"<>ToString[order]<>".dir/Y_l"<>ToString[l]<>"_m"<>ToString[m]<>".dat";,
+                  targetstring={"/amp_l"<>ToString[l]<>"_m"<>ToString[m]<>"/X","/amp_l"<>ToString[l]<>"_m"<>ToString[m]<>"/Y","/phase_l"<>ToString[l]<>"_m"<>ToString[m]<>"/X","/phase_l"<>ToString[l]<>"_m"<>ToString[m]<>"/Y"};
+                  ]
                       ,
                   If[order==="outermost",targetstring="/OutermostExtraction.dir/Y_l"<>ToString[l]<>"_m"<>ToString[m]<>".dat";]
                  ];
 VPrint["Targeting entry: ",targetstring];
-pos=Flatten[Position[datasets,targetstring]];Switch[Length[pos],
-0,Print["Data not found"];Return[Null];,
-1,pos=pos[[1]];,
-_,Print["Error, two entries with this name"];
-Return[Null];];
-VPrint["Annotations: ",Import[h5file,{"Annotations",pos}]];
-VPrint["Data Format: ",Import[h5file,{"DataFormat",pos}]];
-VPrint["Data dimensions: ",Import[h5file,{"Dimensions",pos}]];
-VPrint["Data encoding: ",Import[h5file,{"DataEncoding",pos}]];
+If[code=="SXS",
+pos=Flatten[Position[datasets,targetstring]],
+pos=Flatten[Position[datasets,#]&/@targetstring];
+];
 pos,{i,1,Length[list]}];
 
-If[Length[list]==1,
-                 import={Import[h5file,{"Data",positions}]};,
-                 import=Import[h5file,{"Data",positions}];
+If[code=="SXS",
+import=Import[h5file,{"Data",positions}];
+,
+importa=Import[h5file,{"Data",positions}];
+                import=Table[
+				ritrhsampsi=Interpolation[Transpose[importa[[-3+ 4 j;;-3+ 4 j+1]]]];
+				ritrhsphsi=Interpolation[Transpose[importa[[-3+ 4 j+2;;-3+ 4 j+3]]]];
+				Table[{t,ritrhsampsi[t]Exp[-I ritrhsphsi[t]]},{t,importa[[1,1]],importa[[1,-1]],0.1}],{j,Length@list}];
+				If[Length@list==1,import=import[[1]];]
 ];
 
-If[timreim,wave=(#1/. {tt_,re_,im_}->{tt,re+I im}&)/@import;,wave=import];
+If[Length@list==1,import={import};];
+If[timreim,wave=(#1/. {tt_,re_,im_}->{tt,re+I im}&)/@import;,wave=import;];
 If[resample,wave=ReSampleTD[#,sampling]&/@wave;];
 If[zeroalign,tmax=TimeOfMaximum[wave[[1,-Round[(Length@wave[[1]])/2];;-1]]];Table[wave[[i,All,1]]=wave[[i,All,1]]-tmax,{i,Length@import}]];
 wave
@@ -378,8 +387,9 @@ Flatten@list
 ]
 
 
-SXSParClassification[sxsdir_?ListQ,ClassStr_?ListQ,OptionsPattern[{"\[Epsilon]"->0.001,"HighSpin"->0.8,"UnRepeated"->False,"Verbose"->False,"Mass1-Str"->"initial_mass1","Mass2-Str"->"initial_mass2","MetadataType"->"json","CBCType"->"BHBH"}]]:=Module[{metafiles,metadata,orbitStr="number-of-orbits",dStr="initial-separation",mass1Str,mass2Str,spin1Str="reference_dimensionless_spin1",
-spin2Str="reference_dimensionless_spin2",eccStr="reference_eccentricity",cbc,cbctype,cbctypestr="object_types",spin1Dim,spin2Dim,mass1,mass2,massratio,meta,eccentricity,dist,orbit,select,pos,condition,A1,A2,precvalue,precvalueNorm,\[Epsilon],
+SXSParClassification[sxsdir_?ListQ,ClassStr_?ListQ,OptionsPattern[{"\[Epsilon]"->0.001,"HighSpin"->0.8,"UnRepeated"->False,"Verbose"->False,
+"Mass1-Str"->"initial_mass1","Mass2-Str"->"initial_mass2","MetadataType"->"json","CBCType"->"BHBH","Final-Spin"->"remnant-dimensionless-spin"}]]:=Module[{metafiles,metadata,orbitStr="number-of-orbits",dStr="initial-separation",mass1Str,mass2Str,spin1Str="reference_dimensionless_spin1",
+spin2Str="reference_dimensionless_spin2",finalspinStr="remnant_dimensionless_spin",eccStr="reference_eccentricity",cbc,cbctype,cbctypestr="object_types",spin1Dim,spin2Dim,mass1,mass2,massratio,meta,finalspin,eccentricity,dist,orbit,select,pos,condition,A1,A2,precvalue,precvalueNorm,\[Epsilon],
 spin1Norm,spin2Norm,highspin,spintest,\[Chi]eff,sxsdirout,spinz,spinzDiff,auxDist,posdup,posdupDist,posdistecc,unrepeated,verbose,sxsdiroutaux,precvalue1,precvalue2,precvalueNorm1,precvalueNorm2},
 
 Print["Classification Input Variables. Examples: {{'MassRatio', '0.99<#<1.1'}},{{'Distance', '#>16'}},{{'Orbits', '#>25'}},{{'Precessing'}},
@@ -415,6 +425,7 @@ cbc=cbc[[pos]];
 
 mass1=Flatten@((mass1Str/.#)&/@metadata);
 mass2=Flatten@((mass2Str/.#)&/@metadata);
+finalspin=((finalspinStr/.#)&/@metadata)[[All,-1]];
 massratio=mass1/mass2;
 dist=Flatten@((dStr/.#)&/@metadata);
 orbit=Flatten@((orbitStr/.#)&/@metadata);
@@ -452,6 +463,27 @@ A2=A2[[pos]];
 spinzDiff=spinzDiff[[pos]];
 eccentricity=eccentricity[[pos]];
 \[Chi]eff=\[Chi]eff[[pos]];
+finalspin=finalspin[[pos]];
+sxsdirout=sxsdirout[[pos]];,
+
+condition[[i]]=="Final-Spin",
+
+If[Length@ClassStr[[i]]!= 2,Print["Wrong input"];Break[]];
+
+pos=Flatten@Position[finalspin,_?(Evaluate[select[[i]]]&)];
+
+massratio=massratio[[pos]];
+dist=dist[[pos]];
+orbit=orbit[[pos]];
+spin1Dim=spin1Dim[[pos]];
+spin2Dim=spin2Dim[[pos]];
+A1=A1[[pos]];
+A2=A2[[pos]];
+spinzDiff=spinzDiff[[pos]];
+eccentricity=eccentricity[[pos]];
+\[Chi]eff=\[Chi]eff[[pos]];
+finalspin=finalspin[[pos]];
+
 sxsdirout=sxsdirout[[pos]];,
 
 condition[[i]]== "Distance",
@@ -469,7 +501,7 @@ A2=A2[[pos]];
 spinzDiff=spinzDiff[[pos]];
 eccentricity=eccentricity[[pos]];
 \[Chi]eff=\[Chi]eff[[pos]];
-
+finalspin=finalspin[[pos]];
 sxsdirout=sxsdirout[[pos]];,
 
 condition[[i]]== "Orbits",
@@ -487,7 +519,7 @@ A2=A2[[pos]];
 spinzDiff=spinzDiff[[pos]];
 eccentricity=eccentricity[[pos]];
 \[Chi]eff=\[Chi]eff[[pos]];
-
+finalspin=finalspin[[pos]];
 sxsdirout=sxsdirout[[pos]];,
 
 condition[[i]]== "Non-Precessing",
@@ -510,7 +542,7 @@ A2=A2[[pos]];
 spinzDiff=spinzDiff[[pos]];
 eccentricity=eccentricity[[pos]];
 \[Chi]eff=\[Chi]eff[[pos]];
-
+finalspin=finalspin[[pos]];
 sxsdirout=sxsdirout[[pos]];,
 
 condition[[i]]== "Unequal",
@@ -527,7 +559,7 @@ A2=A2[[pos]];
 spinzDiff=spinzDiff[[pos]];
 eccentricity=eccentricity[[pos]];
 \[Chi]eff=\[Chi]eff[[pos]];
-
+finalspin=finalspin[[pos]];
 sxsdirout=sxsdirout[[pos]];,
 
 condition[[i]]=="Precessing",
@@ -551,7 +583,7 @@ A2=A2[[pos]];
 spinzDiff=spinzDiff[[pos]];
 eccentricity=eccentricity[[pos]];
 \[Chi]eff=\[Chi]eff[[pos]];
-
+finalspin=finalspin[[pos]];
 sxsdirout=sxsdirout[[pos]];,
 
 condition[[i]]== "High-Spin",
@@ -571,7 +603,7 @@ A2=A2[[pos]];
 spinzDiff=spinzDiff[[pos]];
 eccentricity=eccentricity[[pos]];
 \[Chi]eff=\[Chi]eff[[pos]];
-
+finalspin=finalspin[[pos]];
 sxsdirout=sxsdirout[[pos]];,
 
 condition[[i]]== "\[Chi]eff",
@@ -589,7 +621,7 @@ A2=A2[[pos]];
 spinzDiff=spinzDiff[[pos]];
 eccentricity=eccentricity[[pos]];
 \[Chi]eff=\[Chi]eff[[pos]];
-
+finalspin=finalspin[[pos]];
 sxsdirout=sxsdirout[[pos]];,
 
 condition[[i]]== "\[Chi]1",
@@ -607,7 +639,7 @@ A2=A2[[pos]];
 spinzDiff=spinzDiff[[pos]];
 eccentricity=eccentricity[[pos]];
 \[Chi]eff=\[Chi]eff[[pos]];
-
+finalspin=finalspin[[pos]];
 sxsdirout=sxsdirout[[pos]];,
 
 condition[[i]]== "\[Chi]2",
@@ -625,7 +657,7 @@ A2=A2[[pos]];
 spinzDiff=spinzDiff[[pos]];
 eccentricity=eccentricity[[pos]];
 \[Chi]eff=\[Chi]eff[[pos]];
-
+finalspin=finalspin[[pos]];
 sxsdirout=sxsdirout[[pos]];,
 
 
@@ -644,7 +676,7 @@ A2=A2[[pos]];
 spinzDiff=spinzDiff[[pos]];
 eccentricity=eccentricity[[pos]];
 \[Chi]eff=\[Chi]eff[[pos]];
-
+finalspin=finalspin[[pos]];
 sxsdirout=sxsdirout[[pos]];,
  True,
 Print[Style["Wrong input",Bold,Red,16]];
@@ -689,8 +721,8 @@ sxsdiroutaux[[All,1]]]
 ]
 
 
-Options[\[Omega]lmn]={"ModesData"->{},"ModesFile"->"","SpinWeight"->-2,"CounterRotating"->False,"Interpolate\[Omega]\[Tau]"->False,"MaxSpin"->0.99,"N89Data"->{}};
-\[Omega]lmn[l_,m_,n_,Mf_,af_,OptionsPattern[]]:=Module[{counterrotating,file,data,modesdata,modesfile,mstr,sp,spinweight,fmass,f\[Chi],\[Chi]\[Omega]\[Tau],\[Omega],\[Tau],llim,ulim},
+Options[\[Omega]lmn]={"ModesData"->{},"ModesFile"->"","SpinWeight"->-2,"CounterRotating"->False,"Interpolate\[Omega]\[Tau]"->False,"MaxSpin"->0.99,"w228data"->{},"w229data"->{},"wc228data"->{},"wlmntables"->{},"Mixing"->{False,{2,2}},"wlmnmixtables"->{},"wlmnctables"->{}};
+\[Omega]lmn[l_,m_,n_,Mf_,af_,OptionsPattern[]]:=Module[{counterrotating,file,data,modesdata,modesfile,mstr,sp,spinweight,fmass,f\[Chi],\[Chi]\[Omega]\[Tau],\[Omega],\[Tau],llim,ulim,wlmntables},
 modesdata=OptionValue["ModesData"];
 modesfile=OptionValue["ModesFile"];
 spinweight=Abs[OptionValue["SpinWeight"]];
@@ -727,30 +759,45 @@ If[counterrotating,\[Omega]=-\[Omega]];
 
 
 Options[\[Omega]lmnPy]=Options[\[Omega]lmn];
-\[Omega]lmnPy[l_,m_,n_,Mf_,af_,OptionsPattern[]]:=Module[{data89,counterrotating,file,fmass,data,Global`a,intws,maxspin,modesdata,modesfile,mstr,sp,spinweight,f\[Chi],\[Chi]\[Omega]\[Tau],\[Omega],\[Omega]1,\[Omega]s,\[Omega]stab,\[Tau],\[Tau]1,llim,ulim,xx,yy,zz},
+\[Omega]lmnPy[l_,m_,n_,Mf_,af_,OptionsPattern[]]:=Module[{w228data,w229data,wc228data,counterrotating,file,fmass,data,Global`a,intws,maxspin,mixing,modesdata,modesfile,mstr,sp,spinweight,f\[Chi],\[Chi]\[Omega]\[Tau],\[Omega],\[Omega]1,\[Omega]s,\[Omega]stab,\[Tau],\[Tau]1,llim,ulim,xx,yy,zz},
 modesdata=OptionValue["ModesData"];
 modesfile=OptionValue["ModesFile"];
 spinweight=OptionValue["SpinWeight"];
 counterrotating=OptionValue["CounterRotating"];
 intws=OptionValue["Interpolate\[Omega]\[Tau]"];
 maxspin =OptionValue["MaxSpin"];
-data89 = OptionValue["N89Data"];
+w228data = OptionValue["w228data"];
+wc228data = OptionValue["wc228data"];
+w229data = OptionValue["w229data"];
+mixing=OptionValue["Mixing"];
 
 If[intws,
-Which[l==2 && m==2 &&(n==8||n==9),
+
+Which[l==2 && m==2 &&n==8,
 If[counterrotating,
-\[Omega]s=-TakeColumn[data89,{1,2,3}]/.{xx_,yy_,zz_}->{xx,yy+I zz };,
-\[Omega]s=TakeColumn[data89,{1,2,3}]/.{xx_,yy_,zz_}->{xx,yy+I zz };
+\[Omega]s=Conjugate[TakeColumn[wc228data,{1,2,3}]/.{xx_,yy_,zz_}->{xx,-(yy+I zz) }];,
+\[Omega]s=TakeColumn[w228data,{1,2,3}]/.{xx_,yy_,zz_}->{xx,yy+I zz };
+];
+,l==2 && m==2 &&n==9,
+If[counterrotating,
+\[Omega]s=Conjugate[Table[{a,-ExternalEvaluate[Global`session, "omegas=[];grav_220=qnm.modes_cache(s="<>ToString[spinweight]<>",l="<>ToString[l]<>",m="<>ToString[-m]<>",n=" <> ToString[n] <> ");(grav_220(a="<>ToString[DecimalForm[a]]<>"))[0]"]},{a,0,0.99,0.01}]];,
+\[Omega]s=TakeColumn[w229data,{1,2,3}]/.{xx_,yy_,zz_}->{xx,yy+I zz };
 ];
 ,l==2 && m==2 &&(n>9) ,
 If[counterrotating,
-\[Omega]s=-Table[{a,ExternalEvaluate[Global`session, "omegas=[];grav_220=qnm.modes_cache(s="<>ToString[spinweight]<>",l="<>ToString[l]<>",m="<>ToString[-m]<>",n=" <> ToString[n-1] <> ");(grav_220(a="<>ToString[DecimalForm[a]]<>"))[0]"]},{a,0,0.99,0.01}];,
+\[Omega]s=Conjugate[Table[{a,-ExternalEvaluate[Global`session, "omegas=[];grav_220=qnm.modes_cache(s="<>ToString[spinweight]<>",l="<>ToString[l]<>",m="<>ToString[-m]<>",n=" <> ToString[n] <> ");(grav_220(a="<>ToString[DecimalForm[a]]<>"))[0]"]},{a,0,0.99,0.01}]];,
 \[Omega]s=Table[{a,ExternalEvaluate[Global`session, "omegas=[];grav_220=qnm.modes_cache(s="<>ToString[spinweight]<>",l="<>ToString[l]<>",m="<>ToString[Abs@m]<>",n=" <> ToString[n-1] <> ");(grav_220(a="<>ToString[DecimalForm[a]]<>"))[0]"]},{a,0,0.99,0.01}];
 ];
 ,True,
 If[counterrotating,
-\[Omega]s=-Table[{a,ExternalEvaluate[Global`session, "omegas=[];grav_220=qnm.modes_cache(s="<>ToString[spinweight]<>",l="<>ToString[l]<>",m="<>ToString[-m]<>",n=" <> ToString[n] <> ");(grav_220(a="<>ToString[DecimalForm[a]]<>"))[0]"]},{a,0,0.99,0.01}];,
-\[Omega]s=Table[{a,ExternalEvaluate[Global`session, "omegas=[];grav_220=qnm.modes_cache(s="<>ToString[spinweight]<>",l="<>ToString[l]<>",m="<>ToString[Abs@m]<>",n=" <> ToString[n] <> ");(grav_220(a="<>ToString[DecimalForm[a]]<>"))[0]"]},{a,0,0.99,0.01}];
+\[Omega]s=Conjugate@Table[{a,
+If[a<0,-ExternalEvaluate[Global`session, "omegas=[];grav_220=qnm.modes_cache(s="<>ToString[spinweight]<>",l="<>ToString[l]<>",m="<>ToString[m]<>",n=" <> ToString[n] <> ");(grav_220(a="<>ToString[DecimalForm[Abs@a]]<>"))[0]"],
+-ExternalEvaluate[Global`session, "omegas=[];grav_220=qnm.modes_cache(s="<>ToString[spinweight]<>",l="<>ToString[l]<>",m="<>ToString[-m]<>",n=" <> ToString[n] <> ");(grav_220(a="<>ToString[DecimalForm[a]]<>"))[0]"]]
+(*-ExternalEvaluate[Global`session, "omegas=[];grav_220=qnm.modes_cache(s="<>ToString[spinweight]<>",l="<>ToString[l]<>",m="<>ToString[-m]<>",n=" <> ToString[n] <> ");(grav_220(a="<>ToString[DecimalForm[a]]<>"))[0]"]*)},{a,-0.99,0.99,0.01}];,
+\[Omega]s=Table[{a,
+(*ExternalEvaluate[Global`session, "omegas=[];grav_220=qnm.modes_cache(s="<>ToString[spinweight]<>",l="<>ToString[l]<>",m="<>ToString[Abs@m]<>",n=" <> ToString[n] <> ");(grav_220(a="<>ToString[DecimalForm[a]]<>"))[0]"]*)
+If[a<0,ExternalEvaluate[Global`session, "omegas=[];grav_220=qnm.modes_cache(s="<>ToString[spinweight]<>",l="<>ToString[l]<>",m="<>ToString[-m]<>",n=" <> ToString[n] <> ");(grav_220(a="<>ToString[DecimalForm[Abs@a]]<>"))[0]"],
+ExternalEvaluate[Global`session, "omegas=[];grav_220=qnm.modes_cache(s="<>ToString[spinweight]<>",l="<>ToString[l]<>",m="<>ToString[Abs@m]<>",n=" <> ToString[n] <> ");(grav_220(a="<>ToString[DecimalForm[a]]<>"))[0]"]]},{a,-0.99,0.99,0.01}];
 ];
 ];
 \[Omega]1=Re@\[Omega]s;
@@ -760,31 +807,16 @@ Quiet[\[Tau]1=Transpose[{\[Omega]s[[All,1]],-1/Im@\[Omega]s[[All,2]]}]];
 \[Omega]=Interpolation@\[Omega]1;
 \[Tau]=Interpolation@\[Tau]1;
 ,
-If[(af == 0 && m == 0), 
+Which[(af == 0 && m == 0), 
 \[Omega]s= ExternalEvaluate[Global`session, "omseq = schw(s="<>ToString[spinweight]<>",l="<>ToString[l]<>", n_max=" <> ToString[n] <> "); omseq.find_sequence(); (omseq.omega)[-1]"];
 \[Omega]=Re[\[Omega]s]/Mf;
-\[Tau]=-1/Im[\[Omega]s]*Mf;, 
-If[counterrotating,
-\[Omega]s=-ExternalEvaluate[Global`session, "omegas=[];grav_220=qnm.modes_cache(s="<>ToString[spinweight]<>",l="<>ToString[l]<>",m="<>ToString[-m]<>",n=" <> ToString[n] <> ");(grav_220(a="<>ToString[DecimalForm[af]]<>"))[0]"],
-\[Omega]s=ExternalEvaluate[Global`session, "omegas=[];grav_220=qnm.modes_cache(s="<>ToString[spinweight]<>",l="<>ToString[l]<>",m="<>ToString[Abs@m]<>",n=" <> ToString[n] <> ");(grav_220(a="<>ToString[DecimalForm[af]]<>"))[0]"];];
-\[Omega]=Re[\[Omega]s]/Mf;
 \[Tau]=-1/Im[\[Omega]s]*Mf;
-If[m<0,\[Omega]=-\[Omega]];
-,
-\[Omega]=Re[\[Omega]s]/Mf;
-\[Tau]=-1/Im[\[Omega]s]*Mf;
+
+, (l==2 && m==2 &&(n==8)),
+
 If[counterrotating,
-\[Omega]s=-ExternalEvaluate[Global`session, "omegas=[];grav_220=qnm.modes_cache(s="<>ToString[spinweight]<>",l="<>ToString[l]<>",m="<>ToString[-m]<>",n=" <> ToString[n] <> ");(grav_220(a="<>ToString[DecimalForm[af]]<>"))[0]"],
-\[Omega]s=ExternalEvaluate[Global`session, "omegas=[];grav_220=qnm.modes_cache(s="<>ToString[spinweight]<>",l="<>ToString[l]<>",m="<>ToString[Abs@m]<>",n=" <> ToString[n] <> ");(grav_220(a="<>ToString[DecimalForm[af]]<>"))[0]"];];
-\[Omega]=Re[\[Omega]s]/Mf;
-\[Tau]=-1/Im[\[Omega]s]*Mf;
-If[m<0,\[Omega]=-\[Omega]];
-];
-];
-Which[l==2 && m==2 &&(n==8||n==9)&&Not[intws],
-If[counterrotating,
-\[Omega]s=-TakeColumn[data89,{1,2,3}]/.{xx_,yy_,zz_}->{xx,yy+I zz };,
-\[Omega]s=TakeColumn[data89,{1,2,3}]/.{xx_,yy_,zz_}->{xx,yy+ I zz };
+\[Omega]s=Conjugate[TakeColumn[wc228data,{1,2,3}]/.{xx_,yy_,zz_}->{xx,-(yy+I zz )}];,
+\[Omega]s=TakeColumn[w228data,{1,2,3}]/.{xx_,yy_,zz_}->{xx,yy+ I zz };
 ];
 If[m<0,\[Omega]1=Re@(\[Omega]s/.{xx_,yy_}->{xx,-yy});,\[Omega]1=Re@\[Omega]s;];
 Quiet[\[Tau]1=Transpose[{\[Omega]s[[All,1]],-1/Im@\[Omega]s[[All,2]]}]];
@@ -793,13 +825,62 @@ Quiet[\[Tau]1=Transpose[{\[Omega]s[[All,1]],-1/Im@\[Omega]s[[All,2]]}]];
 
 \[Omega]=Re[\[Omega][af]]/Mf;
 \[Tau]=\[Tau][af]*Mf;
-,l==2 && m==2 &&(n>9)&&Not[intws],
+,(l==2 && m==2 &&(n==9)),
 If[counterrotating,
-\[Omega]s=-ExternalEvaluate[Global`session, "omegas=[];grav_220=qnm.modes_cache(s="<>ToString[spinweight]<>",l="<>ToString[l]<>",m="<>ToString[-m]<>",n=" <> ToString[n-1] <> ");(grav_220(a="<>ToString[DecimalForm[af]]<>"))[0]"],
+\[Omega]s=Conjugate[ExternalEvaluate[Global`session, "omegas=[];grav_220=qnm.modes_cache(s="<>ToString[spinweight]<>",l="<>ToString[l]<>",m="<>ToString[-m]<>",n=" <> ToString[n] <> ");(grav_220(a="<>ToString[DecimalForm[af]]<>"))[0]"]];
+If[m<0,\[Omega]s=(\[Omega]s/.{xx_,yy_}->{-xx,yy});];
+\[Omega]=-Re[\[Omega]s]/Mf;
+\[Tau]=1/(Im[\[Omega]s]*Mf);
+,
+\[Omega]s=TakeColumn[w229data,{1,2,3}]/.{xx_,yy_,zz_}->{xx,yy+ I zz };
+If[m<0,\[Omega]1=Re@(\[Omega]s/.{xx_,yy_}->{-xx,-yy});,\[Omega]1=Re@\[Omega]s;];
+Quiet[\[Tau]1=Transpose[{\[Omega]s[[All,1]],-1/Im@\[Omega]s[[All,2]]}]];
+\[Omega]=Interpolation@\[Omega]1;
+\[Tau]=Interpolation@\[Tau]1;
+
+\[Omega]=Re[\[Omega][af]]/Mf;
+\[Tau]=\[Tau][af]*Mf;
+];
+, (l==2 && m==2 &&(n>9)),
+If[counterrotating,
+\[Omega]s=-Conjugate@ExternalEvaluate[Global`session, "omegas=[];grav_220=qnm.modes_cache(s="<>ToString[spinweight]<>",l="<>ToString[l]<>",m="<>ToString[-m]<>",n=" <> ToString[n] <> ");(grav_220(a="<>ToString[DecimalForm[af]]<>"))[0]"],
 \[Omega]s=ExternalEvaluate[Global`session, "omegas=[];grav_220=qnm.modes_cache(s="<>ToString[spinweight]<>",l="<>ToString[l]<>",m="<>ToString[Abs@m]<>",n=" <> ToString[n-1] <> ");(grav_220(a="<>ToString[DecimalForm[af]]<>"))[0]"];];
 \[Omega]=Re[\[Omega]s]/Mf;
 \[Tau]=-1/Im[\[Omega]s]*Mf;
 If[m<0,\[Omega]=-\[Omega]];
+
+, True,
+If[counterrotating,
+\[Omega]s=-Conjugate@ExternalEvaluate[Global`session, "omegas=[];grav_220=qnm.modes_cache(s="<>ToString[spinweight]<>",l="<>ToString[l]<>",m="<>ToString[-m]<>",n=" <> ToString[n] <> ");(grav_220(a="<>ToString[DecimalForm[af]]<>"))[0]"],
+\[Omega]s=ExternalEvaluate[Global`session, "omegas=[];grav_220=qnm.modes_cache(s="<>ToString[spinweight]<>",l="<>ToString[l]<>",m="<>ToString[Abs@m]<>",n=" <> ToString[n] <> ");(grav_220(a="<>ToString[DecimalForm[af]]<>"))[0]"];];
+\[Omega]=Re[\[Omega]s]/Mf;
+\[Tau]=-1/Im[\[Omega]s]*Mf;
+If[m<0,\[Omega]=-\[Omega]];
+];
+
+];
+
+{\[Omega],\[Tau]}
+]
+
+
+(* ::Input::Initialization:: *)
+Options[\[Omega]22nTable]=Options[\[Omega]lmn];
+\[Omega]22nTable[l_,m_,n_,mff_,aff_,OptionsPattern[]]:=Module[{table,tablemix,tablecount,intws,mixing,\[Omega],\[Tau],res},
+table=OptionValue["wlmntables"];
+tablemix=OptionValue["wlmnmixtables"];
+tablecount=OptionValue["wlmnctables"];
+intws=OptionValue["Interpolate\[Omega]\[Tau]"];
+mixing=OptionValue["Mixing"];
+
+If[Not[mixing[[1]]],
+If[Not@intws,
+ {\[Omega],\[Tau]}= (#[aff]&/@table[[n+1]])*{1/mff,mff};,
+{\[Omega],\[Tau]}= table[[n+1]]];
+,
+If[Not@intws,
+ {\[Omega],\[Tau]}= (#[aff]&/@tablemix[[n+1]])*{1/mff,mff};,
+{\[Omega],\[Tau]}= tablemix[[n+1]]];
 ];
 {\[Omega],\[Tau]}
 ]
@@ -827,6 +908,36 @@ S= (m1^2 \[Chi]1 + m2^2 \[Chi]2)/(m1^2 + m2^2);
 (((0.` -0.8561951310209386` \[Eta]-0.09939065676370885` \[Eta]^2+1.668810429851045` \[Eta]^3) (1/4 (1+Sqrt[1-4 \[Eta]])^2 \[Chi]1+1/4 (1-Sqrt[1-4 \[Eta]])^2 \[Chi]2))/(1/4 (1-Sqrt[1-4 \[Eta]])^2+1/4 (1+Sqrt[1-4 \[Eta]])^2)+((0.` +0.5881660363307388` \[Eta]-2.149269067519131` \[Eta]^2+3.4768263932898678` \[Eta]^3) (1/4 (1+Sqrt[1-4 \[Eta]])^2 \[Chi]1+1/4 (1-Sqrt[1-4 \[Eta]])^2 \[Chi]2)^2)/(1/4 (1-Sqrt[1-4 \[Eta]])^2+1/4 (1+Sqrt[1-4 \[Eta]])^2)^2+((0.` +0.142443244743048` \[Eta]-0.9598353840147513` \[Eta]^2+1.9595643107593743` \[Eta]^3) (1/4 (1+Sqrt[1-4 \[Eta]])^2 \[Chi]1+1/4 (1-Sqrt[1-4 \[Eta]])^2 \[Chi]2)^3)/(1/4 (1-Sqrt[1-4 \[Eta]])^2+1/4 (1+Sqrt[1-4 \[Eta]])^2)^3)/(1+((-0.9142232693081653`+ 2.3191363426522633` \[Eta]-9.710576749140989` \[Eta]^3) (1/4 (1+Sqrt[1-4 \[Eta]])^2 \[Chi]1+1/4 (1-Sqrt[1-4 \[Eta]])^2 \[Chi]2))/(1/4 (1-Sqrt[1-4 \[Eta]])^2+1/4 (1+Sqrt[1-4 \[Eta]])^2))]
 
 
+SXSWaveMass[data_]:=Module[{mymodes,times,sxsmodesInt,sxsmodesIntder,sxsmodesdis,
+dedt,metafile,metarules,mass1,mass2,chi1,chi2,d0,amassratio},
+If[Length@mymodes==1,data={data}];
+times=data[[1,All,1]];
+sxsmodesInt=Interpolation/@data;
+sxsmodesIntder=Table[Dt[sxsmodesInt[[i]]@t,t]/.y_[t_]->y,{i,Length@data}];
+sxsmodesdis=Power[#,2]&/@(Abs/@(#@times&/@sxsmodesIntder));
+dedt=Transpose[{times,(times[[2]]-times[[1]])Total[sxsmodesdis]}];
+
+(* First spin position must be the smallest BH . In SXS convenction chi1 spin of the largest BH *)
+Total[dedt[[All,2]]]/(8\[Pi])
+]
+
+
+SXSWaveSpin[data_,initialJ_,mymodes_]:=Module[{times,sxsmodesInt,sxsmodesIntder,sxsmodesdis,
+dedt,metafile,metarules,mass1,mass2,chi1,chi2,d0,amassratio},
+
+times=data[[1,All,1]];
+sxsmodesInt=Table[Interpolation@data[[i]],{i,Length@data}];
+sxsmodesIntder=Table[D[sxsmodesInt[[i]][t],t],{i,Length@sxsmodesInt}];
+(* The imaginary symbol comes from  Re[I*z] = -Im[z] *)
+sxsmodesdis=Sum[mymodes[[n,2]]*sxsmodesInt[[n]][t]*Conjugate[sxsmodesIntder[[n]]],{n,Length@mymodes}];
+dedt=(times[[2]]-times[[1]])Im[(sxsmodesdis/.t->times)];
+
+
+(* First spin position must be the smallest BH . In SXS convenction chi1 spin of the largest BH *)
+initialJ-Total[dedt]/(8\[Pi])
+]
+
+
 SphericalHarmonic[s_,l_,m_]:=Block[{res,Global`\[Theta],Global`\[Phi]},
 res=Sum[(-1)^i  Sqrt[(l+m)! (l-m)! (l-s)! (l+s)!] / ((l+m-i)!(l+s-i)!i!(i-s-m)!)Cos[Global`\[Theta]/2]^(2l+m+s-2i)Sin[Global`\[Theta]/2]^(2i-s-m),{i,Max[0,m+s],Min[l+m,l+s]}];
 res=FullSimplify[(-1)^(-s)  Sqrt[(2l+1)/(4Pi)] res E^(I m Global`\[Phi])];
@@ -847,8 +958,10 @@ SortBy[mins,First]
 ]
 
 
-Options[OvertoneModel]=Join[Options[\[Omega]lmn],{"\[Omega]lmnFunction"->\[Omega]lmn,"Fit\[Alpha]"->{},"Fit\[Tau]"->{},"AmpPhaseShift"->False,"CounterRotating"->False,"Mode"->{2,2},"Vary\[Omega]"->False,"AnsatzReal"->False,"Mixing"->{False,{2,2}},"ReIm"->False,"AmpPhase"->False,"QualityFactor"->False,"\[Omega]val"->{-0.05,0.05},"Export_\[Omega]val"->False,"FitMassSpin"->False,"xLabel"->"Default","yLabel"->"Default","Tones"->{}}];
-OvertoneModel[overtones_,pars_,ti_,OptionsPattern[]]:=Block[{af,Global`a,ansatz,ansatzreal,ampansatz,amphase,amphaseshift,counterrotating,data89,ex\[Omega]val,fitmassspin,fit\[Alpha],fit\[Tau],im,imm,intws,l,m,maxspin,Mfv,Global`M,lm,modesdata,modesfile,mm,mixing,mode,modto0,parvals,phaseansatz,qfact,qfactm,qualfactorQ,re,reim,rem,spinweight,tones,Global`t,var,variablemass,varmassint,vary\[Omega],x,xlabel,xcoeffstr,ycoeffstr,y,ylabel,\[Tau]s,\[Tau]sm,\[Alpha],\[Beta],\[Omega]lmnfunction,\[Omega]m,\[Omega]s,\[Omega]m\[Tau]sm,\[Eta],\[Chi]1,\[Chi]2,mixmode,\[Omega]val},
+Options[OvertoneModel]=Join[Options[\[Omega]lmn],{"\[Omega]lmnFunction"->\[Omega]lmnPy,"Fit\[Alpha]"->{},"Fit\[Tau]"->{},"AmpPhaseShift"->False,"CounterRotating"->False,"Mode"->{2,2},"Vary\[Omega]"->False,"AnsatzReal"->False,"Mixing"->{False,{2,2}},"ReIm"->False,"AmpPhase"->False,"QualityFactor"->False,"\[Omega]val"->{-0.05,0.05},"Export_\[Omega]val"->False,"FitMassSpin"->False,"xLabel"->"Default","yLabel"->"Default","Tones"->{},"WithCounterRotating"->False,"FixTonesBeyond"->""}];
+OvertoneModel[overtones_,pars_,ti_,OptionsPattern[]]:=Block[{af,Global`a,ansatz,ansatzreal,ampansatz,amphase,amphaseshift,counterrotating,w228data,w229data,ex\[Omega]val,fitmassspin,fit\[Alpha],fit\[Tau],im,imm,intws,l,m,maxspin,Mfv,Global`M,lm,modesdata,modesfile,mm,mixing,mode,modto0,
+parvals,phaseansatz,qfact,qfactm,qualfactorQ,re,reim,rem,spinweight,tones,Global`t,var,variablemass,varmassint,vary\[Omega],x,xlabel,xcoeffstr,ycoeffstr,y,ylabel,withcounterotating,wlmntables,wlmnmixtables,\[Tau]s,\[Tau]sc,\[Tau]sm,\[Alpha],\[Beta],\[Omega]lmnfunction,
+\[Omega]m,\[Omega]s,\[Omega]m\[Tau]sm,\[Omega]sc,\[Eta],\[Chi]1,\[Chi]2,mixmode,\[Omega]val,xc,\[Alpha]s,\[Beta]s,modto0v1,omega,tonesbeyond},
 fit\[Alpha]=OptionValue["Fit\[Alpha]"];
 fit\[Tau]=OptionValue["Fit\[Tau]"];
 mode=OptionValue["Mode"];
@@ -872,7 +985,12 @@ maxspin = OptionValue["MaxSpin"];
 xlabel = OptionValue["xLabel"];
 ylabel = OptionValue["yLabel"];
 tones= OptionValue["Tones"];
-data89 = OptionValue["N89Data"];
+tonesbeyond=OptionValue["FixTonesBeyond"];
+w228data = OptionValue["w228data"];
+w229data = OptionValue["w229data"];
+wlmntables = OptionValue["wlmntables"];
+wlmnmixtables = OptionValue["wlmnmixtables"];
+withcounterotating=OptionValue["WithCounterRotating"];
 
 If[Length@tones==0,tones=Table[n,{n,0,overtones}]];
 
@@ -890,18 +1008,30 @@ m=mode[[2]];
 
 (* Freqs. & damping times *)
 If[Length@modesdata==0,
-	\[Omega]s=Table[\[Omega]lmnfunction[l,m,n,Mfv,af,"SpinWeight"->spinweight,"Interpolate\[Omega]\[Tau]"->intws,"MaxSpin"->maxspin,"CounterRotating"->counterrotating,"N89Data"->data89,"ModesFile"->modesfile][[1]],{n,tones}];
-	var=Range[0,overtones];
-	If[vary\[Omega],\[Omega]s=Table[If[n>0,var[[n+1]]=RandomReal[{1+\[Omega]val[[1]],1+\[Omega]val[[2]]}],var[[1]]=1];var[[n+1]]*\[Omega]lmnfunction[l,m,n,Mfv,af,"ModesData"->modesdata[[n+1]],"SpinWeight"->spinweight,"Interpolate\[Omega]\[Tau]"->intws,"MaxSpin"->maxspin,"CounterRotating"->counterrotating,"N89Data"->data89,"ModesFile"->modesfile][[1]],{n,tones}]];
-	\[Tau]s=Table[\[Omega]lmnfunction[l,m,n,Mfv,af,"SpinWeight"->spinweight,"Interpolate\[Omega]\[Tau]"->intws, "MaxSpin"->maxspin,"CounterRotating"->counterrotating,"N89Data"->data89,"ModesFile"->modesfile][[2]],{n,tones}];
+	\[Omega]s=Table[\[Omega]lmnfunction[l,m,n,Mfv,af,"SpinWeight"->spinweight,"Interpolate\[Omega]\[Tau]"->intws,"MaxSpin"->maxspin,"CounterRotating"->counterrotating,"w228data"->w228data,"w229data"->w229data,"ModesFile"->modesfile,"wlmntables"->wlmntables][[1]],{n,tones}];
+	If[withcounterotating,\[Omega]sc=Table[\[Omega]lmnfunction[l,m,n,Mfv,af,"SpinWeight"->spinweight,"Interpolate\[Omega]\[Tau]"->intws,"MaxSpin"->maxspin,"CounterRotating"->True,"w228data"->w228data,"w229data"->w229data,"ModesFile"->modesfile,"wlmntables"->wlmntables][[1]],{n,tones}];\[Omega]s=Join[\[Omega]s,\[Omega]sc];];
+	var=Flatten@Range[tones+1];
+	
+	If[vary\[Omega]&&NumberQ[tonesbeyond],\[Omega]s=Table[If[n>tonesbeyond,
+	var[[n]]=RandomReal[{1+\[Omega]val[[1]],1+\[Omega]val[[2]]}];,
+	var[[n]]=1];omega=\[Omega]lmnfunction[l,m,n,Mfv,af,"SpinWeight"->spinweight,"Interpolate\[Omega]\[Tau]"->intws,"MaxSpin"->maxspin,"CounterRotating"->counterrotating,"w228data"->w228data,"w229data"->w229data,"ModesFile"->modesfile,"wlmntables"->wlmntables][[1]];
+	var[[n]]*omega,{n,tones}];,
+	vary\[Omega]&&Not@NumberQ[tonesbeyond],\[Omega]s=Table[If[n>0,
+	var[[n]]=RandomReal[{1+\[Omega]val[[1]],1+\[Omega]val[[2]]}],
+	var[[n]]=1];omega=\[Omega]lmnfunction[l,m,n,Mfv,af,"SpinWeight"->spinweight,"Interpolate\[Omega]\[Tau]"->intws,"MaxSpin"->maxspin,"CounterRotating"->counterrotating,"w228data"->w228data,"w229data"->w229data,"ModesFile"->modesfile,"wlmntables"->wlmntables][[1]];
+	var[[n]]*omega,{n,tones}];];
+		
+	\[Tau]s=Table[\[Omega]lmnfunction[l,m,n,Mfv,af,"SpinWeight"->spinweight,"Interpolate\[Omega]\[Tau]"->intws, "MaxSpin"->maxspin,"CounterRotating"->counterrotating,"w228data"->w228data,"w229data"->w229data,"ModesFile"->modesfile,"wlmntables"->wlmntables][[2]],{n,tones}];
+	If[withcounterotating,\[Tau]sc=Table[\[Omega]lmnfunction[l,m,n,Mfv,af,"SpinWeight"->spinweight,"Interpolate\[Omega]\[Tau]"->intws,"MaxSpin"->maxspin,"CounterRotating"->True,"w228data"->w228data,"w229data"->w229data,"ModesFile"->modesfile,"wlmntables"->wlmntables][[2]],{n,tones}];\[Tau]s=Join[\[Tau]s,\[Tau]sc];tones=Join[tones,tones]];
 	qfact=\[Omega]s*\[Tau]s;
 	,
-	\[Omega]s=Table[\[Omega]lmnfunction[l,m,n,Mfv,af,"ModesData"->modesdata[[n+1]],"SpinWeight"->spinweight,"Interpolate\[Omega]\[Tau]"->intws,"MaxSpin"->maxspin,"CounterRotating"->counterrotating,"N89Data"->data89,"ModesFile"->modesfile][[1]],{n,tones}];
+	\[Omega]s=Table[\[Omega]lmnfunction[l,m,n,Mfv,af,"ModesData"->modesdata[[n+1]],"SpinWeight"->spinweight,"Interpolate\[Omega]\[Tau]"->intws,"MaxSpin"->maxspin,"CounterRotating"->counterrotating,"w228data"->w228data,"w229data"->w229data,"ModesFile"->modesfile,"wlmntables"->wlmntables][[1]],{n,tones}];
 	var=Range[0,overtones];
-	If[vary\[Omega],\[Omega]s=Table[If[n>0,var[[n+1]]=RandomReal[{1+\[Omega]val[[1]],1+\[Omega]val[[2]]}],var[[1]]=1];var[[n+1]]*\[Omega]lmnfunction[l,m,n,Mfv,af,"ModesData"->modesdata[[n+1]],"SpinWeight"->spinweight,"Interpolate\[Omega]\[Tau]"->intws,"MaxSpin"->maxspin,"CounterRotating"->counterrotating,"N89Data"->data89][[1]],{n,tones}]];
-	\[Tau]s=Table[\[Omega]lmnfunction[l,m,n,Mfv,af,"ModesData"->modesdata[[n+1]],"SpinWeight"->spinweight,"Interpolate\[Omega]\[Tau]"->intws,"MaxSpin"->maxspin,"CounterRotating"->counterrotating,"N89Data"->data89,"ModesFile"->modesfile][[2]],{n,tones}];
+	If[vary\[Omega],\[Omega]s=Table[If[n>0,var[[n+1]]=RandomReal[{1+\[Omega]val[[1]],1+\[Omega]val[[2]]}],var[[1]]=1];var[[n+1]]*\[Omega]lmnfunction[l,m,n,Mfv,af,"ModesData"->modesdata[[n+1]],"SpinWeight"->spinweight,"Interpolate\[Omega]\[Tau]"->intws,"MaxSpin"->maxspin,"CounterRotating"->counterrotating,"w228data"->w228data,"w229data"->w229data,"wlmntables"->wlmntables][[1]],{n,tones}]];
+	\[Tau]s=Table[\[Omega]lmnfunction[l,m,n,Mfv,af,"ModesData"->modesdata[[n+1]],"SpinWeight"->spinweight,"Interpolate\[Omega]\[Tau]"->intws,"MaxSpin"->maxspin,"CounterRotating"->counterrotating,"w228data"->w228data,"w229data"->w229data,"ModesFile"->modesfile,"wlmntables"->wlmntables][[2]],{n,tones}];
 	qfact=\[Omega]s*\[Tau]s;;	
 	];
+
 
 If[ansatzreal,
 
@@ -923,24 +1053,83 @@ If[Not@amphase,
     If[qualfactorQ,
     If[intws,
 	ansatz=Sum[If[Not@reim,x=ToExpression[xcoeffstr<>ToString[tones[[n]]]],x=ToExpression[(xcoeffstr<>ToString[tones[[n]]])]+I ToExpression[(ycoeffstr<>ToString[tones[[n]]])]]; x Exp[-(Global`t-ti)(\[Omega]s[[n]][Global`a]/Global`M(1+ToExpression["\[Alpha]"<>ToString[tones[[n]]]])/(qfact[[n]](1+ToExpression["\[Beta]"<>ToString[tones[[n]]]])))] (Cos[\[Omega]s[[n]][Global`a]/Global`M(1+ToExpression["\[Alpha]"<>ToString[tones[[n]]]]) (Global`t)]+I Sin[ \[Omega]s[[n]][Global`a]/Global`M(1+ToExpression["\[Alpha]"<>ToString[tones[[n]]]]) (Global`t)] ),{n,Length@\[Omega]s}];
-	,
-	ansatz=Sum[If[Not@reim,x=ToExpression[xcoeffstr<>ToString[tones[[n]]]],x=ToExpression[(xcoeffstr<>ToString[tones[[n]]])]+I ToExpression[(ycoeffstr<>ToString[tones[[n]]])]]; x Exp[-(Global`t-ti)(\[Omega]s[[n]](1+ToExpression["\[Alpha]"<>ToString[tones[[n]]]])/(qfact[[n]](1+ToExpression["\[Beta]"<>ToString[tones[[n]]]])))] (Cos[\[Omega]s[[n]](1+ToExpression["\[Alpha]"<>ToString[tones[[n]]]]) (Global`t)]+I Sin[ \[Omega]s[[n]](1+ToExpression["\[Alpha]"<>ToString[tones[[n]]]]) (Global`t)] ),{n,Length@\[Omega]s}]];
-		If[mixing[[1]],
-		\[Omega]m\[Tau]sm=Table[\[Omega]lmnfunction[lm,mm,n,Mfv,af,"ModesFile"->modesfile,"SpinWeight"->spinweight,"Interpolate\[Omega]\[Tau]"->intws,"MaxSpin"->maxspin,"CounterRotating"->counterrotating,"N89Data"->data89,"ModesFile"->modesfile],{n,tones}];
-		\[Omega]m=\[Omega]m\[Tau]sm[[All,1]]/Global`M;
-		\[Tau]sm=\[Omega]m\[Tau]sm[[All,2]]*Global`M;
+	If[mixing[[1]],
+		\[Omega]m\[Tau]sm=Table[\[Omega]lmnfunction[lm,mm,n,Mfv,af,"ModesFile"->modesfile,"SpinWeight"->spinweight,"Interpolate\[Omega]\[Tau]"->intws,"MaxSpin"->maxspin,"CounterRotating"->counterrotating,"w228data"->w228data,"w229data"->w229data,"ModesFile"->modesfile,"wlmntables"->wlmntables,"wlmnmixtables"->wlmnmixtables,"Mixing"->mixing],{n,tones}];
+		\[Omega]m=\[Omega]m\[Tau]sm[[All,1]];
+		\[Tau]sm=\[Omega]m\[Tau]sm[[All,2]];
 		qfactm=\[Omega]m*\[Tau]sm;
-		ansatz=ansatz+Sum[If[Not@reim,x=ToExpression["xm"<>ToString[tones[[n]]]],x=ToExpression["xm"<>ToString[tones[[n]]]]+I ToExpression["ym"<>ToString[tones[[n]]]]];x Exp[-(Global`t-ti)(\[Omega]s[[n]]/Global`M(1+ToExpression["\[Alpha]"<>ToString[tones[[n]]]])/(qfactm[[n]](1+ToExpression["\[Beta]"<>ToString[tones[[n]]]])))] (Cos[\[Omega]m[[n]]/Global`M (Global`t)]+I Sin[ \[Omega]m[[n]] (Global`t)] ),{n,Length@\[Omega]s}]];
+		ansatz=ansatz+Sum[If[Not@reim,x=ToExpression["xm"<>ToString[tones[[n]]]],x=ToExpression["xm"<>ToString[tones[[n]]]]+I ToExpression["ym"<>ToString[tones[[n]]]]];x Exp[-(Global`t-ti)(\[Omega]s[[n]][Global`a]/Global`M(1+ToExpression["\[Alpha]"<>ToString[tones[[n]]]])/(qfactm[[n]](1+ToExpression["\[Beta]"<>ToString[tones[[n]]]])))] (Cos[\[Omega]m[[n]][Global`a]/Global`M (Global`t)]+I Sin[ \[Omega]m[[n]][Global`a]/Global`M (Global`t)] ),{n,Length@\[Omega]s}]]
+	,
+	ansatz=Sum[If[Not@reim,x=ToExpression[xcoeffstr<>ToString[tones[[n]]]],x=ToExpression[(xcoeffstr<>ToString[tones[[n]]])]+I ToExpression[(ycoeffstr<>ToString[tones[[n]]])]]; x Exp[-(Global`t-ti)(\[Omega]s[[n]](1+ToExpression["\[Alpha]"<>ToString[tones[[n]]]])/(qfact[[n]](1+ToExpression["\[Beta]"<>ToString[tones[[n]]]])))] (Cos[\[Omega]s[[n]](1+ToExpression["\[Alpha]"<>ToString[tones[[n]]]]) (Global`t)]+I Sin[ \[Omega]s[[n]](1+ToExpression["\[Alpha]"<>ToString[tones[[n]]]]) (Global`t)] ),{n,Length@\[Omega]s}];
+	If[mixing[[1]],
+		\[Omega]m\[Tau]sm=Table[\[Omega]lmnfunction[lm,mm,n,Mfv,af,"ModesFile"->modesfile,"SpinWeight"->spinweight,"Interpolate\[Omega]\[Tau]"->intws,"MaxSpin"->maxspin,"CounterRotating"->counterrotating,"w228data"->w228data,"w229data"->w229data,"ModesFile"->modesfile,"wlmntables"->wlmntables,"wlmnmixtables"->wlmnmixtables,"Mixing"->mixing],{n,tones}];
+		\[Omega]m=\[Omega]m\[Tau]sm[[All,1]];
+		\[Tau]sm=\[Omega]m\[Tau]sm[[All,2]];
+		qfactm=\[Omega]m*\[Tau]sm;
+		ansatz=ansatz+Sum[If[Not@reim,x=ToExpression["xm"<>ToString[tones[[n]]]],x=ToExpression["xm"<>ToString[tones[[n]]]]+I ToExpression["ym"<>ToString[tones[[n]]]]];x Exp[-(Global`t-ti)(\[Omega]s[[n]](1+ToExpression["\[Alpha]"<>ToString[tones[[n]]]])/(qfactm[[n]](1+ToExpression["\[Beta]"<>ToString[tones[[n]]]])))] (Cos[\[Omega]m[[n]] (Global`t)]+I Sin[ \[Omega]m[[n]] (Global`t)] ),{n,Length@\[Omega]s}]];];
 	,
 	If[Not@intws,
-	ansatz=Sum[If[Not@reim,x=ToExpression[xcoeffstr<>ToString[tones[[n]]]];,x=ToExpression[(xcoeffstr<>ToString[tones[[n]]])]+I ToExpression[(ycoeffstr<>ToString[tones[[n]]])]]; x Exp[-(Global`t-ti)(1/(\[Tau]s[[n]](1+ToExpression["\[Beta]"<>ToString[tones[[n]]]])))] (Cos[\[Omega]s[[n]](1+ToExpression["\[Alpha]"<>ToString[tones[[n]]]]) (Global`t)]+I Sin[ \[Omega]s[[n]](1+ToExpression["\[Alpha]"<>ToString[tones[[n]]]]) (Global`t)] ),{n,Length@\[Omega]s}];
+    
+	ansatz=Sum[If[Not@reim,
+	If[n<=tones[[-1]]+1,
+	x=ToExpression[xcoeffstr<>ToString[tones[[n]]]];
+	\[Alpha]s=ToExpression["\[Alpha]"<>ToString[tones[[n]]]];
+	\[Beta]s=ToExpression["\[Beta]"<>ToString[tones[[n]]]];
 	,
-	ansatz=Sum[If[Not@reim,x=ToExpression[xcoeffstr<>ToString[tones[[n]]]],x=ToExpression[(xcoeffstr<>ToString[tones[[n]]])]+I ToExpression[(ycoeffstr<>ToString[tones[[n]]])]]; x Exp[-(Global`t-ti)(1/(Global`M*\[Tau]s[[n]][Global`a](1+ToExpression["\[Beta]"<>ToString[tones[[n]]]])))] (Cos[\[Omega]s[[n]][Global`a]/Global`M(1+ToExpression["\[Alpha]"<>ToString[tones[[n]]]]) (Global`t)]+I Sin[ \[Omega]s[[n]][Global`a]/Global`M(1+ToExpression["\[Alpha]"<>ToString[tones[[n]]]]) (Global`t)] ),{n,Length@\[Omega]s}];];
-		If[mixing[[1]],
-		\[Omega]m\[Tau]sm=Table[\[Omega]lmnfunction[lm,mm,n,Mfv,af,"ModesFile"->modesfile,"SpinWeight"->spinweight,"Interpolate\[Omega]\[Tau]"->intws,"MaxSpin"->maxspin,"CounterRotating"->counterrotating,"N89Data"->data89,"ModesFile"->modesfile],{n,tones}];
-		\[Omega]m=\[Omega]m\[Tau]sm[[All,1]]/Global`M;
-		\[Tau]sm=\[Omega]m\[Tau]sm[[All,2]]*Global`M;
-		ansatz=ansatz+Sum[If[Not@reim,x=ToExpression["xm"<>ToString[tones[[n]]]],x=ToExpression["xm"<>ToString[tones[[n]]]]+I ToExpression["ym"<>ToString[tones[[n]]]]];x Exp[-(Global`t-ti)/(\[Tau]sm[[n]])] (Cos[\[Omega]m[[n]] (Global`t)]+I Sin[ \[Omega]m[[n]] (Global`t)] ),{n,Length@\[Omega]s}]];	
+	x=ToExpression["xc"<>ToString[tones[[n]]]];
+	\[Alpha]s=ToExpression["\[Alpha]c"<>ToString[tones[[n]]]];
+	\[Beta]s=ToExpression["\[Beta]c"<>ToString[tones[[n]]]];
+	];
+	,
+	
+	If[n<=tones[[-1]]+1,
+	x=ToExpression[xcoeffstr<>ToString[tones[[n]]]];
+	\[Alpha]s=ToExpression["\[Alpha]"<>ToString[tones[[n]]]];
+	\[Beta]s=ToExpression["\[Beta]"<>ToString[tones[[n]]]];
+	,
+	x=ToExpression["xc"<>ToString[tones[[n]]]];
+	\[Alpha]s=ToExpression["\[Alpha]c"<>ToString[tones[[n]]]];
+	\[Beta]s=ToExpression["\[Beta]c"<>ToString[tones[[n]]]];
+	];
+	x=ToExpression[(xcoeffstr<>ToString[tones[[n]]])]+I ToExpression[(ycoeffstr<>ToString[tones[[n]]])]];
+
+	x Exp[-(Global`t-ti)(1/(\[Tau]s[[n]](1+\[Beta]s)))] (Cos[\[Omega]s[[n]](1+\[Alpha]s) (Global`t)]+I Sin[ \[Omega]s[[n]](1+\[Alpha]s) (Global`t)] ),{n,Length@\[Omega]s}];
+
+	If[mixing[[1]],
+		\[Omega]m\[Tau]sm=Table[\[Omega]lmnfunction[lm,mm,n,Mfv,af,"ModesFile"->modesfile,"SpinWeight"->spinweight,"Interpolate\[Omega]\[Tau]"->intws,"MaxSpin"->maxspin,"CounterRotating"->counterrotating,"w228data"->w228data,"w229data"->w229data,"ModesFile"->modesfile,"wlmntables"->wlmntables,"wlmnmixtables"->wlmnmixtables,"Mixing"->mixing],{n,tones}];
+		\[Omega]m=\[Omega]m\[Tau]sm[[All,1]];
+		\[Tau]sm=\[Omega]m\[Tau]sm[[All,2]];
+		ansatz=ansatz+Sum[If[Not@reim,x=ToExpression["xm"<>ToString[tones[[n]]]],x=ToExpression["xm"<>ToString[tones[[n]]]]+I ToExpression["ym"<>ToString[tones[[n]]]]];x Exp[-(Global`t-ti)/((\[Tau]sm[[n]]))] (Cos[(\[Omega]m[[n]])(Global`t)]+I Sin[(\[Omega]m[[n]])(Global`t)] ),{n,Length@\[Omega]s}]]	
+	,
+	ansatz=Sum[If[Not@reim,
+	If[n<=tones[[-1]]+1,
+	x=ToExpression[xcoeffstr<>ToString[tones[[n]]]];
+	\[Alpha]s=ToExpression["\[Alpha]"<>ToString[tones[[n]]]];
+	\[Beta]s=ToExpression["\[Beta]"<>ToString[tones[[n]]]];
+	,
+	x=ToExpression["xc"<>ToString[tones[[n]]]];
+	\[Alpha]s=ToExpression["\[Alpha]c"<>ToString[tones[[n]]]];
+	\[Beta]s=ToExpression["\[Beta]c"<>ToString[tones[[n]]]];
+	];
+	,
+	If[n<=tones[[-1]]+1,
+	x=x=ToExpression[(xcoeffstr<>ToString[tones[[n]]])]+I ToExpression[(ycoeffstr<>ToString[tones[[n]]])];
+	\[Alpha]s=ToExpression["\[Alpha]"<>ToString[tones[[n]]]];
+	\[Beta]s=ToExpression["\[Beta]"<>ToString[tones[[n]]]];
+	,
+	x=x=ToExpression[("xc"<>ToString[tones[[n]]])]+I ToExpression[("yc"<>ToString[tones[[n]]])];
+	\[Alpha]s=ToExpression["\[Alpha]c"<>ToString[tones[[n]]]];
+	\[Beta]s=ToExpression["\[Beta]c"<>ToString[tones[[n]]]];
+	];];
+ 
+	x Exp[-(Global`t-ti)(1/(Global`M \[Tau]s[[n]][Global`a](1+\[Beta]s)))] (Cos[\[Omega]s[[n]][Global`a]/Global`M(1+\[Alpha]s) (Global`t)]+I Sin[ \[Omega]s[[n]][Global`a]/Global`M(1+\[Alpha]s) (Global`t)] ),{n,Length@\[Omega]s}];
+	If[mixing[[1]],
+		\[Omega]m\[Tau]sm=Table[\[Omega]lmnfunction[lm,mm,n,Mfv,af,"ModesFile"->modesfile,"SpinWeight"->spinweight,"Interpolate\[Omega]\[Tau]"->intws,"MaxSpin"->maxspin,"CounterRotating"->counterrotating,"w228data"->w228data,"w229data"->w229data,"ModesFile"->modesfile,"wlmntables"->wlmntables,"wlmnmixtables"->wlmnmixtables,"Mixing"->mixing],{n,tones}];
+		\[Omega]m=\[Omega]m\[Tau]sm[[All,1]];
+		\[Tau]sm=\[Omega]m\[Tau]sm[[All,2]];
+		ansatz=ansatz+Sum[If[Not@reim,x=ToExpression["xm"<>ToString[tones[[n]]]],x=ToExpression["xm"<>ToString[tones[[n]]]]+I ToExpression["ym"<>ToString[tones[[n]]]]];x Exp[-(Global`t-ti)/(Global`M*(\[Tau]sm[[n]][Global`a]))] (Cos[(\[Omega]m[[n]][Global`a])/Global`M (Global`t)]+I Sin[(\[Omega]m[[n]][Global`a])/Global`M (Global`t)] ),{n,Length@\[Omega]s}]];
+	];
+		
 	];
 	,
 	If[qualfactorQ,
@@ -948,7 +1137,7 @@ If[Not@amphase,
 	im=Sum[ToExpression[xcoeffstr<>ToString[tones[[n]]]] Exp[-(Global`t-ti)(\[Omega]s[[n]](1+ToExpression["\[Alpha]"<>ToString[tones[[n]]]])/(qfact[[n]](1+ToExpression["\[Beta]"<>ToString[tones[[n]]]])))]Sin[\[Omega]s[[n]](1+ToExpression["\[Alpha]"<>ToString[tones[[n]]]]) (Global`t)+ToExpression["\[Phi]"<>ToString[tones[[n]]]]],{n,Length@\[Omega]s}];
 
 		If[mixing[[1]],
-			\[Omega]m\[Tau]sm=Table[\[Omega]lmnfunction[lm,mm,n,Mfv,af,"ModesFile"->modesfile,"SpinWeight"->spinweight,"Interpolate\[Omega]\[Tau]"->intws,"MaxSpin"->maxspin,"CounterRotating"->counterrotating,"N89Data"->data89,"ModesFile"->modesfile],{n,tones}];
+			\[Omega]m\[Tau]sm=Table[\[Omega]lmnfunction[lm,mm,n,Mfv,af,"ModesFile"->modesfile,"SpinWeight"->spinweight,"Interpolate\[Omega]\[Tau]"->intws,"MaxSpin"->maxspin,"CounterRotating"->counterrotating,"w228data"->w228data,"w229data"->w229data,"ModesFile"->modesfile,"wlmntables"->wlmntables,"wlmnmixtables"->wlmnmixtables],{n,tones}];
 			\[Omega]m=\[Omega]m\[Tau]sm[[All,1]]/Global`M;
 			\[Tau]sm=\[Omega]m\[Tau]sm[[All,2]]*Global`M;
 			qfactm=\[Omega]m*\[Tau]sm;
@@ -963,7 +1152,7 @@ If[Not@amphase,
 	im=Sum[ToExpression[xcoeffstr<>ToString[tones[[n]]]] Exp[-(Global`t-ti)/(Global`M*\[Tau]s[[n]](1+ToExpression["\[Beta]"<>ToString[tones[[n]]]]))]Sin[\[Omega]s[[n]]/Global`M(1+ToExpression["\[Alpha]"<>ToString[tones[[n]]]]) (Global`t)+ToExpression["\[Phi]"<>ToString[tones[[n]]]]],{n,Length@\[Omega]s}];
 
 		If[mixing[[1]],
-			\[Omega]m\[Tau]sm=Table[\[Omega]lmnfunction[lm,mm,n,Mfv,af,"ModesFile"->modesfile,"SpinWeight"->spinweight,"Interpolate\[Omega]\[Tau]"->intws,"MaxSpin"->maxspin,"CounterRotating"->counterrotating,"N89Data"->data89,"ModesFile"->modesfile],{n,tones}];
+			\[Omega]m\[Tau]sm=Table[\[Omega]lmnfunction[lm,mm,n,Mfv,af,"ModesFile"->modesfile,"SpinWeight"->spinweight,"Interpolate\[Omega]\[Tau]"->intws,"MaxSpin"->maxspin,"CounterRotating"->counterrotating,"w228data"->w228data,"w229data"->w229data,"ModesFile"->modesfile,"wlmntables"->wlmntables,"wlmnmixtables"->wlmnmixtables],{n,tones}];
 			\[Omega]m=\[Omega]m\[Tau]sm[[All,1]]/Global`M;
 			\[Tau]sm=\[Omega]m\[Tau]sm[[All,2]]*Global`M;
 			rem=Sum[ToExpression[xcoeffstr<>ToString[tones[[n]]]] Exp[-(Global`t-ti)/(\[Tau]sm[[n]])] (Cos[\[Omega]m[[n]] (Global`t)]+I Sin[ \[Omega]m[[n]] (Global`t)] ),{n,Length@\[Omega]s}];
@@ -978,122 +1167,17 @@ phaseansatz=ArcTan[im/re];
 ansatz={ampansatz,phaseansatz};
 ];
 
-modto0=Complement[Table[i,{i,tones}],fit\[Alpha]];
-modto0=Table[ToExpression["\[Alpha]"<>ToString[modto0[[i]]]],{i,Length@modto0}];
+modto0v1=Complement[Table[i,{i,tones}],fit\[Alpha]];
+modto0=Table[ToExpression["\[Alpha]"<>ToString[modto0v1[[i]]]],{i,Length@modto0v1}];
+If[withcounterotating,modto0=Join[modto0,Table[ToExpression["\[Alpha]c"<>ToString[modto0v1[[i]]]],{i,Length@modto0}]]];
 ansatz=ansatz/.(Table[modto0[[i]]->0,{i,Length@modto0}]);
 
-modto0=Complement[Table[i,{i,tones}],fit\[Tau]];
-modto0=Table[ToExpression["\[Beta]"<>ToString[modto0[[i]]]],{i,Length@modto0}];
+modto0v1=Complement[Table[i,{i,tones}],fit\[Tau]];
+modto0=Table[ToExpression["\[Beta]"<>ToString[modto0v1[[i]]]],{i,Length@modto0v1}];
+If[withcounterotating,
+modto0=Join[modto0,Table[ToExpression["\[Beta]c"<>ToString[modto0v1[[i]]]],{i,Length@modto0}]]];
 ansatz=ansatz/.(Table[modto0[[i]]->0,{i,Length@modto0}]);
 ];
-
-If[ex\[Omega]val,{ansatz,var},ansatz]
-]
-
-
-
-Options[OvertoneModelV2]=Join[Options[\[Omega]lmn],{"FixExtra"->True,"Fit\[Alpha]"->{},"Fit\[Tau]"->{},"Mode"->{2,2},"Vary\[Omega]"->False,"Mixing"->{False,{2,2}},"ReIm"->False,"AmpPhase"->False,"AmpPhaseShift"->False,"QualityFactor"->False,"ParameterValues"->{},"\[Omega]val"->{-0.05,0.05},"Export_\[Omega]val"->False}];
-OvertoneModelV2[overtones_,pars_,ti_,OptionsPattern[]]:=Block[{ansatz,ampansatz,amphase,amphaseshift,counterrotating,ex\[Omega]val,fixetra,fit\[Alpha],fit\[Tau],im,imm,l,m,lm,modesdata,modesfile,mm,mixing,mode,modto0,parvals,phaseansatz,qfact,qfactm,qualfactorQ,re,reim,rem,Global`t,var,vary\[Omega],x,xcoeffstr,y,ycoeffstr,\[Tau]s,\[Tau]sm,\[Alpha],\[Beta],\[Omega]m,\[Omega]s,\[Omega]m\[Tau]sm,\[Eta],\[Chi]1,\[Chi]2,mixmode,\[Omega]val},
-fixetra=OptionValue["FixExtra"];
-fit\[Alpha]=OptionValue["Fit\[Alpha]"];
-fit\[Tau]=OptionValue["Fit\[Tau]"];
-mode=OptionValue["Mode"];
-vary\[Omega]=OptionValue["Vary\[Omega]"];
-mixing=OptionValue["Mixing"];
-reim=OptionValue["ReIm"];
-amphase=OptionValue["AmpPhase"];
-amphaseshift=OptionValue["AmpPhaseShift"];
-parvals=OptionValue["ParameterValues"];
-\[Omega]val=OptionValue["\[Omega]val"];
-ex\[Omega]val=OptionValue["Export_\[Omega]val"];
-modesdata=OptionValue["ModesData"];
-modesfile=OptionValue["ModesFile"];
-qualfactorQ=OptionValue["QualityFactor"];
-counterrotating=OptionValue["CounterRotating"];
-{lm,mm}=mixing[[2]];
-
-If[Not@counterrotating,xcoeffstr="x";ycoeffstr="y";,xcoeffstr="xc";ycoeffstr="yc"];
-
-l=mode[[1]];
-m=mode[[2]];
-{\[Eta],\[Chi]1,\[Chi]2}=pars[[1;;3]];
-
-(* Freqs. & damping times from Vitor *)
-If[Length@modesdata==0,
-	\[Omega]s=Table[\[Omega]lmn[l,m,n,\[Eta],\[Chi]1,\[Chi]2,"ModesFile"->modesfile,"CounterRotating"->counterrotating][[1]],{n,0,overtones}];
-	var=Range[0,7];
-	If[vary\[Omega],\[Omega]s=Table[If[n>0,var[[n]]=RandomReal[{1+\[Omega]val[[1]],1+\[Omega]val[[2]]}],var[[1]]=1];var[[n+1]]*\[Omega]lmn[l,m,n,\[Eta],\[Chi]1,\[Chi]2,"ModesFile"->modesfile,"CounterRotating"->counterrotating][[1]],{n,0,overtones}]];
-	\[Tau]s=Table[\[Omega]lmn[l,m,n,\[Eta],\[Chi]1,\[Chi]2,"ModesFile"->modesfile,"CounterRotating"->counterrotating][[2]],{n,0,overtones}];
-	qfact=\[Omega]s*\[Tau]s;
-	,
-	\[Omega]s=Table[\[Omega]lmn[l,m,n,\[Eta],\[Chi]1,\[Chi]2,"ModesData"->modesdata[[n+1]],"CounterRotating"->counterrotating][[1]],{n,0,overtones}];
-	var=Range[0,7];
-	If[vary\[Omega],\[Omega]s=Table[If[n>0,var[[n+1]]=RandomReal[{1+\[Omega]val[[1]],1+\[Omega]val[[2]]}],var[[1]]=1];var[[n+1]]*\[Omega]lmn[l,m,n,\[Eta],\[Chi]1,\[Chi]2,"ModesData"->modesdata[[n+1]],"CounterRotating"->counterrotating][[1]],{n,0,overtones}]];
-	\[Tau]s=Table[\[Omega]lmn[l,m,n,\[Eta],\[Chi]1,\[Chi]2,"ModesData"->modesdata[[n+1]],"CounterRotating"->counterrotating][[2]],{n,0,overtones}];
-	qfact=\[Omega]s*\[Tau]s;
-	];
-
-
-If[Not@amphase,
-    If[qualfactorQ,
-	ansatz=Sum[If[Not@reim,x=ToExpression[xcoeffstr<>ToString[n]],x=ToExpression[(xcoeffstr<>ToString[n])]+I ToExpression[(ycoeffstr<>ToString[n])]]; x Exp[-(Global`t-ti)(\[Omega]s[[n+1]](1+ToExpression["\[Alpha]"<>ToString[n]])/(qfact[[n+1]](1+ToExpression["\[Beta]"<>ToString[n]])))] (Cos[\[Omega]s[[n+1]](1+ToExpression["\[Alpha]"<>ToString[n]]) (Global`t)]+I Sin[ \[Omega]s[[n+1]](1+ToExpression["\[Alpha]"<>ToString[n]]) (Global`t)] ),{n,0,overtones}];
-		If[mixing[[1]],
-		\[Omega]m\[Tau]sm=Table[\[Omega]lmn[lm,mm,n,\[Eta],\[Chi]1,\[Chi]2,"ModesFile"->modesfile,"CounterRotating"->counterrotating],{n,0,overtones}];
-		\[Omega]m=\[Omega]m\[Tau]sm[[All,1]];
-		\[Tau]sm=\[Omega]m\[Tau]sm[[All,2]];
-		qfactm=\[Omega]m*\[Tau]sm;
-		ansatz=ansatz+Sum[If[Not@reim,x=ToExpression["xm"<>ToString[n]],x=ToExpression["xm"<>ToString[n]]+I ToExpression["ym"<>ToString[n]]];x Exp[-(Global`t-ti)(\[Omega]s[[n+1]](1+ToExpression["\[Alpha]"<>ToString[n]])/(qfactm[[n+1]](1+ToExpression["\[Beta]"<>ToString[n]])))] (Cos[\[Omega]m[[n+1]] (Global`t)]+I Sin[ \[Omega]m[[n+1]] (Global`t)] ),{n,0,overtones}]];
-	,
-	ansatz=Sum[If[Not@reim,If[amphaseshift,x=ToExpression[xcoeffstr<>ToString[n]]*Exp[I ToExpression[ycoeffstr<>ToString[n]]],x=ToExpression[xcoeffstr<>ToString[n]]],x=ToExpression[(xcoeffstr<>ToString[n])]+I ToExpression[(ycoeffstr<>ToString[n])]]; x Exp[-(Global`t-ti)(1/(\[Tau]s[[n+1]](1+ToExpression["\[Beta]"<>ToString[n]])))] (Cos[\[Omega]s[[n+1]](1+ToExpression["\[Alpha]"<>ToString[n]]) (Global`t)]+I Sin[ \[Omega]s[[n+1]](1+ToExpression["\[Alpha]"<>ToString[n]]) (Global`t)] ),{n,0,overtones}];
-		If[mixing[[1]],
-		\[Omega]m\[Tau]sm=Table[\[Omega]lmn[lm,mm,n,\[Eta],\[Chi]1,\[Chi]2,"ModesFile"->modesfile,"CounterRotating"->counterrotating],{n,0,overtones}];
-		\[Omega]m=\[Omega]m\[Tau]sm[[All,1]];
-		\[Tau]sm=\[Omega]m\[Tau]sm[[All,2]];
-		ansatz=ansatz+Sum[If[Not@reim,x=ToExpression["xm"<>ToString[n]],x=ToExpression["xm"<>ToString[n]]+I ToExpression["ym"<>ToString[n]]];x Exp[-(Global`t-ti)/(\[Tau]sm[[n+1]])] (Cos[\[Omega]m[[n+1]] (Global`t)]+I Sin[ \[Omega]m[[n+1]] (Global`t)] ),{n,0,overtones}]];	
-	];
-	,
-	If[qualfactorQ,
-	re=Sum[ToExpression[xcoeffstr<>ToString[n]] Exp[-(Global`t-ti)(\[Omega]s[[n+1]](1+ToExpression["\[Alpha]"<>ToString[n]])/(qfact[[n+1]](1+ToExpression["\[Beta]"<>ToString[n]])))]Cos[\[Omega]s[[n+1]](1+ToExpression["\[Alpha]"<>ToString[n]]) (Global`t)+ToExpression["\[Phi]"<>ToString[n]]],{n,0,overtones}];
-	im=Sum[ToExpression[xcoeffstr<>ToString[n]] Exp[-(Global`t-ti)(\[Omega]s[[n+1]](1+ToExpression["\[Alpha]"<>ToString[n]])/(qfact[[n+1]](1+ToExpression["\[Beta]"<>ToString[n]])))]Sin[\[Omega]s[[n+1]](1+ToExpression["\[Alpha]"<>ToString[n]]) (Global`t)+ToExpression["\[Phi]"<>ToString[n]]],{n,0,overtones}];
-
-		If[mixing[[1]],
-			\[Omega]m\[Tau]sm=Table[\[Omega]lmn[lm,mm,n,\[Eta],\[Chi]1,\[Chi]2,"ModesFile"->modesfile,"CounterRotating"->counterrotating],{n,0,overtones}];
-			\[Omega]m=\[Omega]m\[Tau]sm[[All,1]];
-			\[Tau]sm=\[Omega]m\[Tau]sm[[All,2]];
-			qfactm=\[Omega]m*\[Tau]sm;
-			rem=Sum[ToExpression[xcoeffstr<>ToString[n]] Exp[-(Global`t-ti)(\[Omega]s[[n+1]](1+ToExpression["\[Alpha]"<>ToString[n]])/(qfactm[[n+1]](1+ToExpression["\[Beta]"<>ToString[n]])))] (Cos[\[Omega]m[[n+1]] (Global`t)]+I Sin[ \[Omega]m[[n+1]] (Global`t)] ),{n,0,overtones}];
-			imm=Sum[ToExpression[xcoeffstr<>ToString[n]] Exp[-(Global`t-ti)(\[Omega]s[[n+1]](1+ToExpression["\[Alpha]"<>ToString[n]])/(qfactm[[n+1]](1+ToExpression["\[Beta]"<>ToString[n]])))] (Sin[\[Omega]m[[n+1]] (Global`t)]+I Sin[ \[Omega]m[[n+1]] (Global`t)] ),{n,0,overtones}];
-			,
-			rem=0;
-			imm=0;
-			];
-	,
-	re=Sum[ToExpression[xcoeffstr<>ToString[n]] Exp[-(Global`t-ti)/(\[Tau]s[[n+1]](1+ToExpression["\[Beta]"<>ToString[n]]))]Cos[\[Omega]s[[n+1]](1+ToExpression["\[Alpha]"<>ToString[n]]) (Global`t)+ToExpression["\[Phi]"<>ToString[n]]],{n,0,overtones}];
-	im=Sum[ToExpression[xcoeffstr<>ToString[n]] Exp[-(Global`t-ti)/(\[Tau]s[[n+1]](1+ToExpression["\[Beta]"<>ToString[n]]))]Sin[\[Omega]s[[n+1]](1+ToExpression["\[Alpha]"<>ToString[n]]) (Global`t)+ToExpression["\[Phi]"<>ToString[n]]],{n,0,overtones}];
-
-		If[mixing[[1]],
-			\[Omega]m\[Tau]sm=Table[\[Omega]lmn[lm,mm,n,\[Eta],\[Chi]1,\[Chi]2,"ModesFile"->modesfile,"CounterRotating"->counterrotating],{n,0,overtones}];
-			\[Omega]m=\[Omega]m\[Tau]sm[[All,1]];
-			\[Tau]sm=\[Omega]m\[Tau]sm[[All,2]];
-			rem=Sum[ToExpression[xcoeffstr<>ToString[n]] Exp[-(Global`t-ti)/(\[Tau]sm[[n+1]])] (Cos[\[Omega]m[[n+1]] (Global`t)]+I Sin[ \[Omega]m[[n+1]] (Global`t)] ),{n,0,overtones}];
-			imm=Sum[ToExpression[xcoeffstr<>ToString[n]] Exp[-(Global`t-ti)/(\[Tau]sm[[n+1]])] (Sin[\[Omega]m[[n+1]] (Global`t)]+I Sin[ \[Omega]m[[n+1]] (Global`t)] ),{n,0,overtones}];
-			,
-			rem=0;
-			imm=0;
-			];
-      ];
-ampansatz=Sqrt[(re+rem)^2+(im+imm)^2];
-phaseansatz=ArcTan[im/re];
-ansatz={ampansatz,phaseansatz};
-];
-
-modto0=Complement[Table[i,{i,0,overtones}],fit\[Alpha]];
-modto0=Table[ToExpression["\[Alpha]"<>ToString[modto0[[i]]]],{i,Length@modto0}];
-ansatz=ansatz/.(Table[modto0[[i]]->0,{i,Length@modto0}]);
-
-modto0=Complement[Table[i,{i,0,overtones}],fit\[Tau]];
-modto0=Table[ToExpression["\[Beta]"<>ToString[modto0[[i]]]],{i,Length@modto0}];
-ansatz=ansatz/.(Table[modto0[[i]]->0,{i,Length@modto0}]);
 
 If[ex\[Omega]val,{ansatz,var},ansatz]
 ]
@@ -1108,46 +1192,8 @@ parsmod=Table[vars[[2*i+1]]->Sqrt[(pars[[2i+1]]^2+pars[[2i+2]]^2)]Exp[I ArcTan[p
 ];
 
 
-Options[RefineBoundaries]=Join[Options[FitRingdown],{"Tolerance"->0.01}]
-RefineBoundaries[data_,nmax_,pars_,outval_]:=Block[{amin,amax,mmin,mmax,ov,ovi,out,parsvars,posresmin,res,resmin,restab,resdata,res2,tol,Global`M,Global`a,Global`t},
-
-tol=OptionsPattern["Tolerance"];
-
-amin=pars[[2]]*(0.9);
-amax=pars[[2]]*(1.1);
-mmin=pars[[1]]*(0.9);
-mmax=pars[[1]]*(1.1);
-out=outval;
-res2=1;
-
-While[outval==1 && res2>=tol,
-	ovi=OvertoneModel[nmax,{mfa,af},0,"Fit\[Alpha]"->{},"Mode"->{2,2},"SpinWeight"->-2,"\[Omega]lmnFunction"->\[Omega]lmnPy,"ReIm"->False,"Interpolate\[Omega]\[Tau]"->True];
-	parsvars=Flatten[Table[ToExpression[("x"<>ToString[n])],{n,0,nmax}]];
-	restab=Flatten[Table[
-	ov=ovi/.Global`M->mass/.Global`a->spin;
-	res=NonlinearModelFit[data,ov,parsvars,Global`t]["BestFitParameters"];
-	pars=Norm[{mass,spin}-{mfa,af}];
-	resdata=Transpose[{data[[All,1]],ov/.res/.Global`t->data[[All,1]]}];
-	res=Total@(Re[resdata[[All,2]]-data[[All,2]]]^2+Im[resdata[[All,2]]-data[[All,2]]]^2);
-	{mass,spin,res,pars},{mass,mmin,mmax,dm},{spin,amin,amax,da}],1];
-	resmin=Min[restab[[All,3]]];
-	Quiet[posresmin=Position[restab,_?(#[[3]]==resmin&)]];
-	pars=restab[[posresmin[[1,1]]]][[1;;2]];
-	res2=resmin;
-	res=Join[pars,{res2}];
-	If[MemberQ[{mmin,mmax},pars[[1]]]||MemberQ[{amin,amax},pars[[2]]],
-				out=1;Print[Style["Parameter estimate touching the boundaries at n = "<>ToString[nmax]<>". Consider to broaden the boundaries.",Red]],
-				amin=pars[[2]]*(0.99);
-				amax=pars[[2]]*(1.01);
-				mmin=pars[[1]]*(0.99);
-				mmax=pars[[1]]*(1.01);
-				out=0;];
-];
-]
-
-
-Options[FitRingdown]={"OldFitPars"->{0,0},"w228data"->{},"w229data"->{},"da"->0.00001,"dm"->0.00001,"OutputGrid"->False,"Boundaries"->{}};
-FitRingdownv2[data_,nmax_,truepars_,OptionsPattern[]]:=Block[{Global`a,Global`M,Global`t,af,amin,amax,boundaries,da,dm,mfa,mmin,mmax,oldpars,oldparsnorm,oldparsnorf,out,outgrid,ov,ovi,pars,parsvars,posresmin,res,restab,res2,resall,resmin,resdata,x,y,w228data,w229data},
+Options[FitRingdown]=Join[Options[OvertoneModel],{"OldFitPars"->{0,0},"w228data"->{},"w229data"->{},"da"->0.00001,"dm"->0.00001,"OutputGrid"->False,"Boundaries"->{},"wlmntables"->{},"\[Omega]lmnFunction"->\[Omega]lmnPy}];
+FitRingdown[data_,nmax_,truepars_,OptionsPattern[]]:=Block[{Global`a,Global`M,Global`t,af,amin,amax,bfmodel,boundaries,da,dm,mfa,mixing,mmin,mmax,oldpars,oldparsnorm,oldparsnorf,out,outgrid,ov,ovi,pars,parsvars,posresmin,res,restab,res2,resall,resmin,resdata,x,y,\[Omega]lmnfunction,wlmntables,wlmnmixtables,\[Omega]lmnFunction,w228data,w229data,times},
 oldpars=OptionValue["OldFitPars"];
 oldparsnorm=Norm[oldpars/truepars-1];
 w228data=OptionValue["w228data"];
@@ -1156,159 +1202,27 @@ da=OptionValue["da"];
 dm=OptionValue["dm"];
 outgrid=OptionValue["OutputGrid"];
 boundaries=OptionValue["Boundaries"];
+\[Omega]lmnfunction=OptionValue["\[Omega]lmnFunction"];
+wlmntables = OptionValue["wlmntables"];
+\[Omega]lmnFunction = OptionValue["wlmntables"];
+mixing = OptionValue["Mixing"];
+wlmnmixtables = OptionValue["wlmnmixtables"];
 
 {mfa,af}=truepars;
+times=data[[All,1]];
+parsvars=Flatten[Table[{ToExpression[("x"<>ToString[n])],ToExpression[("y"<>ToString[n])]},{n,0,nmax}]];
+If[mixing[[1]],parsvars=Join[parsvars,Flatten[Table[{ToExpression[("xm"<>ToString[n])],ToExpression[("ym"<>ToString[n])]},{n,0,nmax}]]]];
 
-If[nmax<=2,
-If[Length@boundaries==0,
-amin=oldpars[[2]]*(0.8);
-amax=oldpars[[2]]*(1.2);
-mmin=oldpars[[1]]*(0.5);
-mmax=oldpars[[1]]*(1.5);,
-amin=boundaries[[2,1]];
-amax=boundaries[[2,2]];
-mmin=boundaries[[1,1]];
-mmax=boundaries[[1,2]];
-];
-Print["Using grid algorithm"];
-Print["M bounds: ",{mmin,mmax}];
-Print["a bounds: ",{amin,amax}];
-ovi=OvertoneModel[nmax,{mfa,af},0,"Fit\[Alpha]"->{},"Mode"->{2,2},"SpinWeight"->-2,"\[Omega]lmnFunction"->\[Omega]lmnPy,"ReIm"->False,"Interpolate\[Omega]\[Tau]"->True];
-	parsvars=Flatten[Table[ToExpression[("x"<>ToString[n])],{n,0,nmax}]];
-	restab=Flatten[Table[
-	ov=ovi/.Global`M->mass/.Global`a->spin;
-	res=NonlinearModelFit[data,ov,parsvars,Global`t]["BestFitParameters"];
-	pars=Norm[{mass,spin}-{mfa,af}];
-	resdata=Transpose[{data[[All,1]],ov/.res/.Global`t->data[[All,1]]}];
-	res=Total@(Re[resdata[[All,2]]-data[[All,2]]]^2+Im[resdata[[All,2]]-data[[All,2]]]^2);
-	{mass,spin,res,pars},{mass,mmin,mmax,dm},{spin,amin,amax,da}],1];
-	resmin=Min[restab[[All,3]]];
-	Quiet[posresmin=Position[restab,_?(#[[3]]==resmin&)]];
-	pars=restab[[posresmin[[1,1]]]][[1;;2]];
-	res2=resmin;
-	res=Join[pars,{res2}];
-	If[MemberQ[{mmin,mmax},pars[[1]]]||MemberQ[{amin,amax},pars[[2]]],out=1;Print[Style["Parameter estimate touching the boundaries at n = "<>ToString[nmax]<>". Consider to broaden the boundaries.",Red]],out=0;];
-
-,
-Print["Using grid algorithm"];
-If[Length@boundaries==0,
-amin=oldpars[[2]]*(0.995);
-amax=oldpars[[2]]*(1.005);
-mmin=oldpars[[1]]*(0.995);
-mmax=oldpars[[1]]*(1.005);,
-amin=boundaries[[2,1]];
-amax=boundaries[[2,2]];
-mmin=boundaries[[1,1]];
-mmax=boundaries[[1,2]];
-];
-Print["M bounds: ",{mmin,mmax}];
-Print["a bounds: ",{amin,amax}];
-Which[nmax<=7,
-	ovi=OvertoneModel[nmax,{mfa,af},0,"Fit\[Alpha]"->{},"Mode"->{2,2},"SpinWeight"->-2,"\[Omega]lmnFunction"->\[Omega]lmnPy,"ReIm"->False,"Interpolate\[Omega]\[Tau]"->True];
-	parsvars=Flatten[Table[ToExpression[("x"<>ToString[n])],{n,0,nmax}]];
-	restab=Flatten[Table[
-	ov=ovi/.Global`M->mass/.Global`a->spin;
-	res=NonlinearModelFit[data,ov,parsvars,Global`t]["BestFitParameters"];
-	pars=Norm[{mass,spin}-{mfa,af}];
-	resdata=Transpose[{data[[All,1]],ov/.res/.Global`t->data[[All,1]]}];
-	res=Total@(Re[resdata[[All,2]]-data[[All,2]]]^2+Im[resdata[[All,2]]-data[[All,2]]]^2);
-	{mass,spin,res,pars},{mass,mmin,mmax,dm},{spin,amin,amax,da}],1];
-	resmin=Min[restab[[All,3]]];
-	Quiet[posresmin=Position[restab,_?(#[[3]]==resmin&)]];
-	pars=restab[[posresmin[[1,1]]]][[1;;2]];
-	res2=resmin;
-	res=Join[pars,{res2}];
-	If[MemberQ[{mmin,mmax},pars[[1]]]||MemberQ[{amin,amax},pars[[2]]],out=1;Print[Style["Parameter estimate touching the boundaries at n = "<>ToString[nmax]<>". Consider to broaden the boundaries.",Red]],out=0;];
-	,
-	nmax==8
-	,
-	ovi=OvertoneModel[8,{mfa,af},0,"Fit\[Alpha]"->{},"Mode"->{2,2},"SpinWeight"->-2,"\[Omega]lmnFunction"->\[Omega]lmnPy,"ReIm"->False,"N89Data"->w228data,"Interpolate\[Omega]\[Tau]"->True];
-	parsvars=Flatten[Table[ToExpression[("x"<>ToString[n])],{n,0,nmax}]];
-	restab=Flatten[Table[
-	ov=ovi/.Global`M->mass/.Global`a->spin;
-	res=NonlinearModelFit[data,ov,parsvars,Global`t]["BestFitParameters"];
-	pars=Norm[{mass,spin}-{mfa,af}];
-	resdata=Transpose[{data[[All,1]],ov/.res/.Global`t->data[[All,1]]}];
-	res=Total@(Re[resdata[[All,2]]-data[[All,2]]]^2+Im[resdata[[All,2]]-data[[All,2]]]^2);
-	{mass,spin,res,pars},{mass,mmin,mmax,dm},{spin,amin,amax,da}],1];
-	resmin=Min[restab[[All,3]]];
-	Quiet[posresmin=Position[restab,_?(#[[3]]==resmin&)]];
-	pars=restab[[posresmin[[1,1]]]][[1;;2]];
-	res2=resmin;
-	res=Join[pars,{res2}];
-	If[MemberQ[{mmin,mmax},pars[[1]]]||MemberQ[{amin,amax},pars[[2]]],out=1;Print[Style["Parameter estimate touching the boundaries at n = "<>ToString[nmax]<>". Consider to broaden the boundaries.",Red]],out=0;];
-	,
-	nmax==9
-	,
-	ovi= OvertoneModel[8,{mfa,af},0,"Fit\[Alpha]"->{},"Mode"->{2,2},"SpinWeight"->-2,"\[Omega]lmnFunction"->\[Omega]lmnPy,"ReIm"->False,"N89Data"->w228data,"Interpolate\[Omega]\[Tau]"->True]+
-	   OvertoneModel[9,{mfa,af},0,"Fit\[Alpha]"->{},"Mode"->{2,2},"SpinWeight"->-2,"\[Omega]lmnFunction"->\[Omega]lmnPy,"ReIm"->False,"N89Data"->w229data,"Interpolate\[Omega]\[Tau]"->True,"Tones"->{9}];
-	parsvars=Flatten[Table[ToExpression[("x"<>ToString[n])],{n,0,nmax}]];
-	restab=Flatten[Table[
-	ov=ovi/.Global`M->mass/.Global`a->spin;
-	res=NonlinearModelFit[data,ov,parsvars,Global`t]["BestFitParameters"];
-	pars=Norm[{mass,spin}-{mfa,af}];
-	resdata=Transpose[{data[[All,1]],ov/.res/.Global`t->data[[All,1]]}];
-	res=Total@(Re[resdata[[All,2]]-data[[All,2]]]^2+Im[resdata[[All,2]]-data[[All,2]]]^2);
-	{mass,spin,res,pars},{mass,mmin,mmax,dm},{spin,amin,amax,da}],1];
-	resmin=Min[restab[[All,3]]];
-	Quiet[posresmin=Position[restab,_?(#[[3]]==resmin&)]];
-	pars=restab[[posresmin[[1,1]]]][[1;;2]];
-	res2=resmin;
-	res=Join[pars,{res2}];
-	If[MemberQ[{mmin,mmax},pars[[1]]]||MemberQ[{amin,amax},pars[[2]]],out=1;Print[Style["Parameter estimate touching the boundaries at n = "<>ToString[nmax]<>". Consider to broaden the boundaries.",Red]],out=0;];
-	,
-	nmax>9
-	,
-	ovi= OvertoneModel[8,{mfa,af},0,"Fit\[Alpha]"->{},"Mode"->{2,2},"SpinWeight"->-2,"\[Omega]lmnFunction"->\[Omega]lmnPy,"ReIm"->False,"N89Data"->w228data,"Interpolate\[Omega]\[Tau]"->True]+
-	   OvertoneModel[9,{mfa,af},0,"Fit\[Alpha]"->{},"Mode"->{2,2},"SpinWeight"->-2,"\[Omega]lmnFunction"->\[Omega]lmnPy,"ReIm"->False,"N89Data"->w229data,"Interpolate\[Omega]\[Tau]"->True,"Tones"->{9}];
-	ovi = ovi +(Sum[OvertoneModel[n,{mfa,af},0,"Fit\[Alpha]"->{},"Mode"->{2,2},"SpinWeight"->-2,"\[Omega]lmnFunction"->\[Omega]lmnPy,"ReIm"->False,"Interpolate\[Omega]\[Tau]"->True,"Tones"->{n}],{n,10,nmax}]);
-	parsvars=Flatten[Table[ToExpression[("x"<>ToString[n])],{n,0,nmax}]];
-	restab=Flatten[Table[
-	ov=ovi/.Global`M->mass/.Global`a->spin;
-	res=NonlinearModelFit[data,ov,parsvars,Global`t]["BestFitParameters"];
-	pars=Norm[{mass,spin}-{mfa,af}];
-	resdata=Transpose[{data[[All,1]],ov/.res/.Global`t->data[[All,1]]}];
-	res=Total@(Re[resdata[[All,2]]-data[[All,2]]]^2+Im[resdata[[All,2]]-data[[All,2]]]^2);
-	{mass,spin,res,pars},{mass,mmin,mmax,dm},{spin,amin,amax,da}],1];
-	resmin=Min[restab[[All,3]]];
-	Quiet[posresmin=Position[restab,_?(#[[3]]==resmin&)]];
-	pars=restab[[posresmin[[1,1]]]][[1;;2]];
-	res2=resmin;
-	res=Join[pars,{res2}];
-	If[MemberQ[{mmin,mmax},pars[[1]]]||MemberQ[{amin,amax},pars[[2]]],out=1;Print[Style["Parameter estimate touching the boundaries at n = "<>ToString[nmax]<>". Consider to broaden the boundaries.",Red]],out=0;];
-];];
-
-(*Which[oldparsnorm\[GreaterEqual] 0.00125 && nmax<5, Join[res,{out}],True,If[outgrid,Join[res,{out},{{restab}}],Join[res,{out}]]]*)
-If[outgrid,Join[res,{out},{{restab}}],Join[res,{out}]]
-]
-
-
-Options[FitRingdown]={"OldFitPars"->{0,0},"w228data"->{},"w229data"->{},"da"->0.00001,"dm"->0.00001,"OutputGrid"->False,"Boundaries"->{}};
-FitRingdown[data_,nmax_,truepars_,OptionsPattern[]]:=Block[{Global`a,Global`M,Global`t,af,amin,amax,boundaries,da,dm,mfa,mmin,mmax,oldpars,oldparsnorm,oldparsnorf,out,outgrid,ov,ovi,pars,parsvars,posresmin,res,restab,res2,resall,resmin,resdata,x,y,w228data,w229data},
-oldpars=OptionValue["OldFitPars"];
-oldparsnorm=Norm[oldpars/truepars-1];
-w228data=OptionValue["w228data"];
-w229data=OptionValue["w229data"];
-da=OptionValue["da"];
-dm=OptionValue["dm"];
-outgrid=OptionValue["OutputGrid"];
-boundaries=OptionValue["Boundaries"];
-
-restab=Flatten[Table[
-	pars={0,0}
-	res=0;
-	{mass,spin,res,pars},{mass,mmin,mmax,dm},{spin,amin,amax,da}],1];
-
-{mfa,af}=truepars;
 If[oldparsnorm>= 0.00125 && nmax<5,
 Print["Using fitting algorithm"];
-ov=OvertoneModel[nmax,{mfa,af},0,"Fit\[Alpha]"->{},"Mode"->{2,2},"SpinWeight"->-2,"\[Omega]lmnFunction"->\[Omega]lmnPy,"Interpolate\[Omega]\[Tau]"->True,"ReIm"->True];
-parsvars=Flatten[Table[{ToExpression[("x"<>ToString[n])],ToExpression[("y"<>ToString[n])]},{n,0,nmax}]];
 parsvars=Join[parsvars,{Global`M,Global`a}];
-resall=CNMinimize[data[[All,2]],ov,parsvars,{Global`t,data[[All,1]]},"Bounds"->{0.7<= Global`M<= 1.5,0.<= Global`a<= 0.99},Method->"NelderMead",MaxIterations->100000];
+ov=OvertoneModel[nmax,{mfa,af},0,"Fit\[Alpha]"->{},"Mode"->{2,2},"SpinWeight"->-2,"\[Omega]lmnFunction"->\[Omega]lmnfunction,"Interpolate\[Omega]\[Tau]"->True,"ReIm"->True,"wlmntables"->wlmntables,"Mixing"->mixing,"wlmnmixtables"->wlmnmixtables];
+(*res=Sqrt[Total@(Abs[bfmodel[[All,2]]-data[[All,2]]]^2)];*)
+resall=CNMinimize[data[[All,2]],ov,parsvars,{Global`t,times},"Bounds"->{0.7<= Global`M<= 1.5,0.<= Global`a<= 0.99},Method->"NelderMead",MaxIterations->100000];
 pars={Global`M,Global`a}/.resall[[2]];
-resdata=Transpose[{data[[All,1]],ov/.resall[[2]]/.Global`t->data[[All,1]]}];
-res2=Total@(Re[resdata[[All,2]]-data[[All,2]]]^2+Im[resdata[[All,2]]-data[[All,2]]]^2);
+resdata=Transpose[{times,ov/.resall[[2]]/.Global`t->times}];
+(*res2=Total@(Re[resdata[[All,2]]-data[[All,2]]]^2+Im[resdata[[All,2]]-data[[All,2]]]^2);*)
+res2=1-EasyMatchT[data,resdata,times[[1]],times[[1]]+90];
 res=Join[pars,{res2}];
 If[MemberQ[{0.7,1.5},pars[[1]]]||MemberQ[{0,0.99},pars[[2]]],out=1;Print[Style["Parameter estimate touching the boundaries at n = "<>ToString[nmax]<>". Consider to broaden the boundaries.",Red]],out=0;];
 ,
@@ -1323,85 +1237,90 @@ amax=boundaries[[2,2]];
 mmin=boundaries[[1,1]];
 mmax=boundaries[[1,2]];
 ];
+
 Print["M bounds: ",{mmin,mmax}];
 Print["a bounds: ",{amin,amax}];
 
-Which[nmax<=7,
-	ovi=OvertoneModel[nmax,{mfa,af},0,"Fit\[Alpha]"->{},"Mode"->{2,2},"SpinWeight"->-2,"\[Omega]lmnFunction"->\[Omega]lmnPy,"ReIm"->False,"Interpolate\[Omega]\[Tau]"->True];
-	parsvars=Flatten[Table[ToExpression[("x"<>ToString[n])],{n,0,nmax}]];
-	restab=Flatten[Table[
-	ov=ovi/.Global`M->mass/.Global`a->spin;
-	res=NonlinearModelFit[data,ov,parsvars,Global`t]["BestFitParameters"];
-	pars=Norm[{mass,spin}-{mfa,af}];
-	resdata=Transpose[{data[[All,1]],ov/.res/.Global`t->data[[All,1]]}];
-	res=Total@(Re[resdata[[All,2]]-data[[All,2]]]^2+Im[resdata[[All,2]]-data[[All,2]]]^2);
-	{mass,spin,res,pars},{mass,mmin,mmax,dm},{spin,amin,amax,da}],1];
-	resmin=Min[restab[[All,3]]];
-	Quiet[posresmin=Position[restab,_?(#[[3]]==resmin&)]];
-	pars=restab[[posresmin[[1,1]]]][[1;;2]];
-	res2=resmin;
-	res=Join[pars,{res2}];
-	If[MemberQ[{mmin,mmax},pars[[1]]]||MemberQ[{amin,amax},pars[[2]]],out=1;Print[Style["Parameter estimate touching the boundaries at n = "<>ToString[nmax]<>". Consider to broaden the boundaries.",Red]],out=0;];
-	,
-	nmax==8
-	,
-	ovi=OvertoneModel[8,{mfa,af},0,"Fit\[Alpha]"->{},"Mode"->{2,2},"SpinWeight"->-2,"\[Omega]lmnFunction"->\[Omega]lmnPy,"ReIm"->False,"N89Data"->w228data,"Interpolate\[Omega]\[Tau]"->True];
-	parsvars=Flatten[Table[ToExpression[("x"<>ToString[n])],{n,0,nmax}]];
-	restab=Flatten[Table[
-	ov=ovi/.Global`M->mass/.Global`a->spin;
-	res=NonlinearModelFit[data,ov,parsvars,Global`t]["BestFitParameters"];
-	pars=Norm[{mass,spin}-{mfa,af}];
-	resdata=Transpose[{data[[All,1]],ov/.res/.Global`t->data[[All,1]]}];
-	res=Total@(Re[resdata[[All,2]]-data[[All,2]]]^2+Im[resdata[[All,2]]-data[[All,2]]]^2);
-	{mass,spin,res,pars},{mass,mmin,mmax,dm},{spin,amin,amax,da}],1];
-	resmin=Min[restab[[All,3]]];
-	Quiet[posresmin=Position[restab,_?(#[[3]]==resmin&)]];
-	pars=restab[[posresmin[[1,1]]]][[1;;2]];
-	res2=resmin;
-	res=Join[pars,{res2}];
-	If[MemberQ[{mmin,mmax},pars[[1]]]||MemberQ[{amin,amax},pars[[2]]],out=1;Print[Style["Parameter estimate touching the boundaries at n = "<>ToString[nmax]<>". Consider to broaden the boundaries.",Red]],out=0;];
-	,
-	nmax==9
-	,
-	ovi= OvertoneModel[8,{mfa,af},0,"Fit\[Alpha]"->{},"Mode"->{2,2},"SpinWeight"->-2,"\[Omega]lmnFunction"->\[Omega]lmnPy,"ReIm"->False,"N89Data"->w228data,"Interpolate\[Omega]\[Tau]"->True]+
-	   OvertoneModel[9,{mfa,af},0,"Fit\[Alpha]"->{},"Mode"->{2,2},"SpinWeight"->-2,"\[Omega]lmnFunction"->\[Omega]lmnPy,"ReIm"->False,"N89Data"->w229data,"Interpolate\[Omega]\[Tau]"->True,"Tones"->{9}];
-	parsvars=Flatten[Table[ToExpression[("x"<>ToString[n])],{n,0,nmax}]];
-	restab=Flatten[Table[
-	ov=ovi/.Global`M->mass/.Global`a->spin;
-	res=NonlinearModelFit[data,ov,parsvars,Global`t]["BestFitParameters"];
-	pars=Norm[{mass,spin}-{mfa,af}];
-	resdata=Transpose[{data[[All,1]],ov/.res/.Global`t->data[[All,1]]}];
-	res=Total@(Re[resdata[[All,2]]-data[[All,2]]]^2+Im[resdata[[All,2]]-data[[All,2]]]^2);
-	{mass,spin,res,pars},{mass,mmin,mmax,dm},{spin,amin,amax,da}],1];
-	resmin=Min[restab[[All,3]]];
-	Quiet[posresmin=Position[restab,_?(#[[3]]==resmin&)]];
-	pars=restab[[posresmin[[1,1]]]][[1;;2]];
-	res2=resmin;
-	res=Join[pars,{res2}];
-	If[MemberQ[{mmin,mmax},pars[[1]]]||MemberQ[{amin,amax},pars[[2]]],out=1;Print[Style["Parameter estimate touching the boundaries at n = "<>ToString[nmax]<>". Consider to broaden the boundaries.",Red]],out=0;];
-	,
-	nmax>9
-	,
-	ovi= OvertoneModel[8,{mfa,af},0,"Fit\[Alpha]"->{},"Mode"->{2,2},"SpinWeight"->-2,"\[Omega]lmnFunction"->\[Omega]lmnPy,"ReIm"->False,"N89Data"->w228data,"Interpolate\[Omega]\[Tau]"->True]+
-	   OvertoneModel[9,{mfa,af},0,"Fit\[Alpha]"->{},"Mode"->{2,2},"SpinWeight"->-2,"\[Omega]lmnFunction"->\[Omega]lmnPy,"ReIm"->False,"N89Data"->w229data,"Interpolate\[Omega]\[Tau]"->True,"Tones"->{9}];
-	ovi = ovi +(Sum[OvertoneModel[n,{mfa,af},0,"Fit\[Alpha]"->{},"Mode"->{2,2},"SpinWeight"->-2,"\[Omega]lmnFunction"->\[Omega]lmnPy,"ReIm"->False,"Interpolate\[Omega]\[Tau]"->True,"Tones"->{n}],{n,10,nmax}]);
-	parsvars=Flatten[Table[ToExpression[("x"<>ToString[n])],{n,0,nmax}]];
-	restab=Flatten[Table[
-	ov=ovi/.Global`M->mass/.Global`a->spin;
-	res=NonlinearModelFit[data,ov,parsvars,Global`t]["BestFitParameters"];
-	pars=Norm[{mass,spin}-{mfa,af}];
-	resdata=Transpose[{data[[All,1]],ov/.res/.Global`t->data[[All,1]]}];
-	res=Total@(Re[resdata[[All,2]]-data[[All,2]]]^2+Im[resdata[[All,2]]-data[[All,2]]]^2);
-	{mass,spin,res,pars},{mass,mmin,mmax,dm},{spin,amin,amax,da}],1];
-	resmin=Min[restab[[All,3]]];
-	Quiet[posresmin=Position[restab,_?(#[[3]]==resmin&)]];
-	pars=restab[[posresmin[[1,1]]]][[1;;2]];
-	res2=resmin;
-	res=Join[pars,{res2}];
-	If[MemberQ[{mmin,mmax},pars[[1]]]||MemberQ[{amin,amax},pars[[2]]],out=1;Print[Style["Parameter estimate touching the boundaries at n = "<>ToString[nmax]<>". Consider to broaden the boundaries.",Red]],out=0;];
-];];
 
-Which[oldparsnorm>= 0.00125 && nmax<5, Join[res,{out}],True,If[outgrid,Join[res,{out},{{restab}}],Join[res,{out}]]]
+	ovi=OvertoneModel[nmax,{mfa,af},0,"Fit\[Alpha]"->{},"Mode"->{2,2},"SpinWeight"->-2,"\[Omega]lmnFunction"->\[Omega]lmnfunction,"ReIm"->False,"w228data"->w228data,"w229data"->w229data,"Interpolate\[Omega]\[Tau]"->True,"wlmntables"->wlmntables,"Mixing"->mixing,"wlmnmixtables"->wlmnmixtables];
+	restab=Flatten[Table[
+	ov=ovi/.Global`M->mass/.Global`a->spin;
+	res=NonlinearModelFit[data,ov,parsvars,Global`t]["BestFitParameters"];
+	pars=Norm[{mass,spin}-{mfa,af}];
+	resdata=Transpose[{times,ov/.res/.Global`t->times}];
+	res=Total@(Re[resdata[[All,2]]-data[[All,2]]]^2+Im[resdata[[All,2]]-data[[All,2]]]^2);
+	 bfmodel=Transpose[{times,ov/.pars/.Global`t->times}];
+	(*res=Sqrt[Total@(Abs[bfmodel[[All,2]]-data[[All,2]]]^2)];*)
+	res=1-EasyMatchT[data,bfmodel,times[[1]],times[[1]]+90];
+	{mass,spin,res,pars},{mass,mmin,mmax,dm},{spin,amin,amax,da}],1];
+	resmin=Min[restab[[All,3]]];
+	Quiet[posresmin=Position[restab,_?(#[[3]]==resmin&)]];
+	pars=restab[[posresmin[[1,1]]]][[1;;2]];
+	res2=resmin;
+	res=Join[pars,{res2}];
+	If[MemberQ[{mmin,mmax},pars[[1]]]||MemberQ[{amin,amax},pars[[2]]],out=1;Print[Style["Parameter estimate touching the boundaries at n = "<>ToString[nmax]<>". Consider to broaden the boundaries.",Red]],out=0;];
+];
+
+Which[oldparsnorm>= 0.00125 && nmax<5, Join[res,{out},{resall[[2]]}],True,If[outgrid,Join[res,{out},{{restab}},{resall[[2]]}],Join[res,{out},{resall[[2]]}]]]
+]
+
+
+(* ::Input::Initialization:: *)
+Options[FitRingdownGrid]=Join[Options[OvertoneModel],{"Mode"->{2,2},"SpinRange"-> {0.,1.},"SpinThresholds"-> {0.,0.99},"Iterations"-> 7,"MassStepInit"-> 0.05,"SpinStepInit"-> 0.05,"MassSampling"-> 20,"SpinSampling"-> 20,"NeighbourPointsMass"->2,"NeighbourPointsSpin"->2,"w228data"-> {},"w229data"->{},"\[Omega]lmnFunction"-> \[Omega]lmnPy, "TrueParameters"->{1,0},"wlmntables"->{},"Verbose"->False,"Tones"->{},"FixTonesBeyond"->"" }];
+FitRingdownGrid[thedata_,nmax_,thetmin_,massrange_,OptionsPattern[]]:=
+Block[{w228data=OptionValue["w228data"],w229data=OptionValue["w229data"],\[Omega]lmnfunc = OptionValue["\[Omega]lmnFunction"],themode = OptionValue["Mode"],ampslist=Table[ToExpression["x"<>ToString[i]],{i,0,nmax}],mminInit=massrange[[1]],mmaxInit=massrange[[2]],mmin,mmax,aminInit=OptionValue["SpinRange"][[1]],amaxInit=OptionValue["SpinRange"][[2]],amin,amax,athreshmin = OptionValue["SpinThresholds"][[1]],athreshmax = OptionValue["SpinThresholds"][[2]],mstep=OptionValue["MassStepInit"],astep=OptionValue["SpinStepInit"],msamp = OptionValue["MassSampling"],asamp = OptionValue["SpinSampling"],nbneighboursm = OptionValue["NeighbourPointsMass"],nbneighboursa = OptionValue["NeighbourPointsSpin"],itmax=OptionValue["Iterations"],tones=OptionValue["Tones"],tonesbeyond=OptionValue["FixTonesBeyond"],truepars=OptionValue["TrueParameters"],wlmntables=OptionValue["wlmntables"],wlmnmixtables = OptionValue["wlmnmixtables"],verbose=OptionValue["Verbose"],withcounterotating=OptionValue["WithCounterRotating"],i,data,rest,restTotal={},ov,curDistance,pars,bfmodel,res,resmin,distancemin,posresmin,posdistancemin,bestmass,bestspin,bestpars,bestbic,Global`t,datam,times,mixing,lenc,lend,vary\[Omega],wc228data},
+
+mixing = OptionValue["Mixing"];
+vary\[Omega]=OptionValue["Vary\[Omega]"];
+wc228data=OptionValue["wc228data"];
+data=Select[thedata,#[[1]]>=thetmin&];
+times=data[[All,1]];
+lend=Length[data];
+If[mixing[[1]],ampslist=Join[ampslist,Table[ToExpression["xm"<>ToString[n]],{n,0,nmax}]]];
+If[withcounterotating,ampslist=Join[ampslist,Table[ToExpression["xc"<>ToString[n]],{n,0,nmax}]]];
+If[verbose,Print[ampslist]];
+lenc=Length[ampslist];
+For[{i=0;mmin=mminInit;mmax=mmaxInit;amin=aminInit;amax=amaxInit},i<itmax,i++,
+rest=Flatten[Table[
+spin=Max[spin,athreshmin]; spin=Min[spin,athreshmax];spin=Round[spin,10.^-15];mass=Round[mass,10.^-15];
+
+If[NumberQ@tonesbeyond && nmax> tonesbeyond,
+ov=OvertoneModel[tonesbeyond,{mass,spin},0,"Fit\[Alpha]"->{},"Mode"->{2,2},"SpinWeight"->-2,"\[Omega]lmnFunction"->\[Omega]lmnfunc,"Interpolate\[Omega]\[Tau]"->False,"ReIm"->False,"wlmntables"->wlmntables,"Mixing"->mixing,"wlmnmixtables"->wlmnmixtables,"WithCounterRotating"->withcounterotating,"Vary\[Omega]"->vary\[Omega],"FixTonesBeyond"->tonesbeyond,"wc228data"->wc228data];
+ov=ov+OvertoneModel[nmax,truepars,0,"Fit\[Alpha]"->{},"Mode"->{2,2},"SpinWeight"->-2,"\[Omega]lmnFunction"->\[Omega]lmnfunc,"Interpolate\[Omega]\[Tau]"->False,"ReIm"->False,"wlmntables"->wlmntables,"Mixing"->mixing,"wlmnmixtables"->wlmnmixtables,"WithCounterRotating"->withcounterotating,"Vary\[Omega]"->vary\[Omega],"wc228data"->wc228data,"FixTonesBeyond"->tonesbeyond,"Tones"->Table[i,{i,tonesbeyond+1,nmax}]];
+,
+ov=OvertoneModel[nmax,{mass,spin},0,"Fit\[Alpha]"->{},"Mode"->{2,2},"SpinWeight"->-2,"\[Omega]lmnFunction"->\[Omega]lmnfunc,"Interpolate\[Omega]\[Tau]"->False,"ReIm"->False,"wlmntables"->wlmntables,"Mixing"->mixing,"wlmnmixtables"->wlmnmixtables,"WithCounterRotating"->withcounterotating,"wc228data"->wc228data];
+];
+
+pars=NonlinearModelFit[data,ov,ampslist,Global`t]["BestFitParameters"];
+curDistance=Norm[{mass,spin}-truepars];
+bfmodel=Transpose[{data[[All,1]],ov/.pars/.Global`t->times}];
+res=1-EasyMatchT[data,bfmodel,times[[1]],times[[1]]+1000];
+(*res=Sqrt[Total@(Abs[bfmodel[[All,2]]-data[[All,2]]]^2)];*)
+{mass,spin,res,curDistance,pars},{mass,mmin,mmax,mstep},{spin,amin,amax,astep}],1];
+restTotal = Join[restTotal,rest[[;;,;;4]]];
+resmin=Min[rest[[All,3]]];
+distancemin=If[i==0,Min[rest[[All,4]]],Min[distancemin,Min[rest[[All,4]]]]];
+posresmin=Position[rest[[All,3]],_?(# == resmin&)];
+posdistancemin=Position[rest[[All,4]],_?(#==distancemin&)];
+bestmass=rest[[posresmin[[1,1]],1]];
+bestspin=rest[[posresmin[[1,1]],2]];
+bestpars = rest[[posresmin[[1,1]],5]];
+If[bestmass==mmin||bestmass==mmax,Print[Style["Warning! Mass hit an edge (iteration "<>ToString[i+1]<>" of "<>ToString[itmax]<>").",Orange]]];
+If[bestspin==amin||bestspin==amax||bestspin==athreshmin||bestspin==athreshmax,Print[Style["Warning! Spin hit an edge (iteration "<>ToString[i+1]<>" of "<>ToString[itmax]<>").",Orange]]];
+mmin=Max[bestmass-nbneighboursm*mstep,mminInit];
+mmax=Min[bestmass+nbneighboursm*mstep,mmaxInit];
+amin=Max[bestspin-nbneighboursa*astep,athreshmin,aminInit];
+amax=Min[bestspin+nbneighboursa*astep,athreshmax,amaxInit];
+If[verbose,Print[mmin,"  ",bestmass,"  ",mmax,"    ",amin,"  ",bestspin,"  ",amax,"         ",mstep,"    ",astep]];
+If[i < itmax-1,
+mstep=mstep*2.*nbneighboursm/msamp;
+astep=astep*2.*nbneighboursa/asamp;
+]
+];
+restTotal=Sort[DeleteDuplicatesBy[restTotal,#[[1;;2]]&]];
+ov=OvertoneModel[nmax,{bestmass,bestspin},0,"Fit\[Alpha]"->{},"Mode"->{2,2},"SpinWeight"->-2,"\[Omega]lmnFunction"->\[Omega]lmnfunc,"Interpolate\[Omega]\[Tau]"->False,"ReIm"->False,"wlmntables"->wlmntables,"Mixing"->mixing,"wlmnmixtables"->wlmnmixtables];
+bfmodel=Transpose[{times,ov/.bestpars/.Global`t->times}];
+bestbic = lend + lend *Log[2\[Pi]]+Log[lend]*(2*lenc+1)+lend *Log[Total@(Abs[bfmodel[[All,2]]-data[[All,2]]]^2)/lend];{restTotal,bestmass,bestspin,mstep,astep,Norm[{bestmass,bestspin}-truepars],resmin,distancemin,bestbic,bestpars}
 ]
 
 

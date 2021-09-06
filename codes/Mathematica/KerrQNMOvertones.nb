@@ -356,7 +356,8 @@ Cell[BoxData[
            FontSize->16], "Text",
           FontSize->16], "Text",
          FontSize->16], "Text",
-        FontSize->16], "[", "5", "]"}]}], ";", " ", 
+        FontSize->16], "[", 
+       RowBox[{"5", "-", "6"}], "]"}], ";", " ", 
      RowBox[{
      "please", " ", "do", " ", "refer", " ", "to", " ", "these", " ", 
       "original", " ", "works", 
@@ -387,7 +388,8 @@ Cell[BoxData[
            FontSize->16], "Text",
           FontSize->16], "Text",
          FontSize->16], "Text",
-        FontSize->16], "[", "5", "]"}], " ", "also", " ", "provides", " ", 
+        FontSize->16], "[", 
+       RowBox[{"5", "-", "6"}], "]"}], " ", "also", " ", "provides", " ", 
       "a", " ", "computation", " ", "of", " ", "the", " ", "angular", " ", 
       "and", " ", "radial", " ", "wavefunctions", " ", "of", " ", "the", " ", 
       "QNMs", " ", 
@@ -424,7 +426,7 @@ Cell[BoxData[
            FontSize->16], "Text",
           FontSize->16], "Text",
          FontSize->16], "Text",
-        FontSize->16], "[", "6", "]"}], " ", "and", " ", 
+        FontSize->16], "[", "7", "]"}], " ", "and", " ", 
       RowBox[{"include", ":", " ", 
        RowBox[{"the", " ", "use", " ", "of", " ", 
         RowBox[{"Leaver", "'"}], "s", " ", 
@@ -1039,7 +1041,7 @@ Cell[BoxData[
            StyleBox[
             StyleBox[
              StyleBox[
-              StyleBox["5", "Text",
+              StyleBox["6", "Text",
                FontSize->16], "Text",
               FontSize->16], "Text",
              FontSize->16], "Text",
@@ -5355,7 +5357,8 @@ Grav. ",
  StyleBox["26",
   FontWeight->"Bold"],
  ":163001 (2009).  [arXiv: 0905.2975]\n\n[5] E. Berti, \
-https://pages.jh.edu/~eberti2/ringdown/\n\n[6] F. Jim\[EAcute]nez Forteza and \
+https://pages.jh.edu/~eberti2/ringdown/\n\n[6] V. Cardoso, \
+https://centra.tecnico.ulisboa.pt/network/grit/files/ringdown/\n\n[7] F. Jim\[EAcute]nez Forteza and \
 P. Mourier, \"High-overtone fits to numerical relativity ringdowns: beyond \
 the dismissed n=8 special tone\".  (2021).  [arXiv: 2107.11829]"
 }], "Text",

@@ -7,7 +7,7 @@ The RD emerges as the late trail of radiation usually represented as a sum of da
 # Prerequisites
 
 To fully and succesufully use all codes stored here, one needs to have the following codes and versions installed:
-* Python ≥ 3.0 along with the qnm package [7-8] and the numpy package;
+* Python ≥ 3.0 along with the qnm package [8-9] and the numpy package;
 * Mathematica ≥ 11.0.
 
 The KerrQNMOvertones code is available in two versions that respectively require only the use of Python (without the need for the qnm package) or only the use of Mathematica.
@@ -20,25 +20,25 @@ In this repository one can find:
 * data describing the quasi-normal mode (QNM) spectrum;
 * data resulting from fits informed by numerical relativity (NR) waveforms;
 
-all from reference [6].<br>
+all from reference [7].<br>
 
-**Please refer to the above paper if using these codes and results; please also refer to the original works [2-4] describing the Mathematica code available at [5,9] on which the codes KerrQNMOvertone.ipynb and .nb are based, if using the latter codes.**
+**Please refer to the above paper if using these codes and results; please also refer to the original works [2-4] describing the Mathematica code available at [5-6] on which the codes KerrQNMOvertone.ipynb and .nb are based, if using the latter codes.**
 
 
 Structure:
 * ./codes :  
-  * Mathematica. It contains two classes of codes, both written in Mathematica. Rdown.nb and Rdown.m: these two (equivalent) codes contain the main functions                                      used to produce the RD models and ansätze (OvertoneModel), to compute the QNM frequencies and damping times (\\[Omega]lmnPy) from                                    the python code qnm [7-8] complemented by our tables for the (l=2,m=2,n=8,9) modes ([6]), or to estimate the final mass and spin from the GW strain (FitRingdownGrid). 
+  * Mathematica. It contains two classes of codes, both written in Mathematica. Rdown.nb and Rdown.m: these two (equivalent) codes contain the main functions                                      used to produce the RD models and ansätze (OvertoneModel), to compute the QNM frequencies and damping times (\\[Omega]lmnPy) from                                    the python code qnm [8-9] complemented by our tables for the (l=2,m=2,n=8,9) modes ([7]), or to estimate the final mass and spin from the GW strain (FitRingdownGrid). 
                                    Moreover, it also includes a code (KerrQNMOvertones) to compute the QNM spectrum from scratch based on the original code from 
-                                   [2-4] and available at [5,9]. 
+                                   [2-4] and available at [5-6]. 
   * Python. Same version of the KerrQNMOvertones code translated into Python language.
                                    
 * ./data :    
-  * ./QNMdata. It contains the QNM data (tables) for the lmn = 228 and lmn = 229 co-rotating and lmn = 22(8-9) counter-rotating modes, as decribed in reference [6].
-  * ./NRFits. NR fit results obtained by reference [6].                                  
+  * ./QNMdata. It contains the QNM data (tables) for the lmn = 228 and lmn = 229 co-rotating and lmn = 22(8-9) counter-rotating modes, as decribed in reference [7].
+  * ./NRFits. NR fit results obtained by reference [7].                                  
 
 # The data/NRFits folder.
 
-You find a list of BBH_SXS_index folders each one corresponding to the 620 SXS NR ringdown fits produced in [6]. In each folder you will find three files:
+You find a list of BBH_SXS_index folders each one corresponding to the 620 SXS NR ringdown fits produced in [7]. In each folder you will find three files:
 
 * mass_spin.dat: It contains the normalised final mass and the final dimensionless spin of the given simulation.
 * datafile_nmin0_nmax12.dat: It contains the results of the fits in the following format: mass, spin , mismatch, epsilon, Bayesian Information Criterion (BIC).
@@ -48,15 +48,15 @@ You find a list of BBH_SXS_index folders each one corresponding to the 620 SXS N
 
 This code allows for the computation of the (l,m,n) QNM complex frequency ωlmn and angular separation constant Almn for a spin-weigth-s perturbation of a Kerr (or Schwarzschild) black hole using Leaver's method [1].
 
-The code is based on the original Mathematica code from [2-4] available at [5,9]; please do refer to these original works and note that the code available at [5,9] also provides a computation of the angular and radial wavefunctions of the QNMs (not included here).
+The code is based on the original Mathematica code from [2-4] available at [5-6]; please do refer to these original works and note that the code available at [5-6] also provides a computation of the angular and radial wavefunctions of the QNMs (not included here).
 
-The specificities of this version are described in [6] and include:
+The specificities of this version are described in [7] and include:
 * the use of Leaver's inversions [1] in the calculation of the continued fractions for a more stable recovery of overtones;
 * much larger numbers of steps in the approximations to the continued fractions allowed by the direct implementation of the secant method instead of Mathematica's
        memory-consuming built-in root-finding algorithm;
 * and a progressive increase of this number of steps over successive iterations along with a convergence criterion, that can be of use for modes for which Leaver's method is less efficient such as near the algebraically special Schwarzschild mode ω = - 2 *i*.
    
-The units convention also differs from [1-5] where the mass and maximal dimensionless spin are set to 1/2: in KerrQNMOvertones, units are set such that the mass of the black hole is 1. <br>
+The units convention also differs from [1-6] where the mass and maximal dimensionless spin are set to 1/2: in KerrQNMOvertones, units are set such that the mass of the black hole is 1. <br>
 This version requires two close but distinct initial guesses for ωlmn.
 
 Note that this version has *not* been extensively tested for s ≠ -2 nor for l ≠ 2.
@@ -73,12 +73,12 @@ Note that this version has *not* been extensively tested for s ≠ -2 nor for l 
 
 * [4] E. Berti, V. Cardoso and A. O. Starinets, "TOPICAL REVIEW: Quasinormal modes of black holes and black branes".  Class. Quant. Grav. **26**:163001 (2009).  [arXiv: 0905.2975]
 
-* [5] E. Berti, https://pages.jh.edu/~eberti2/ringdown/
+* [5] V. Cardoso, https://centra.tecnico.ulisboa.pt/network/grit/files/ringdown/
 
-* [6] F. Jiménez Forteza and P. Mourier, "High-overtone fits to numerical relativity ringdowns: beyond the dismissed n=8 special tone".  (2021).  [arXiv: 2107.11829]
+* [6] E. Berti, https://pages.jh.edu/~eberti2/ringdown/
 
-* [7] L. C. Stein, "qnm: A Python package for calculating Kerr quasinormal modes, separation constants, and spherical-spheroidal mixing coefficients",  J. Open Source Softw. **4**:1683 (2019). [arXiv:1908.10377]
+* [7] F. Jiménez Forteza and P. Mourier, "High-overtone fits to numerical relativity ringdowns: beyond the dismissed n=8 special tone".  (2021).  [arXiv: 2107.11829]
 
-* [8] https://pypi.org/project/qnm/ 
+* [8] L. C. Stein, "qnm: A Python package for calculating Kerr quasinormal modes, separation constants, and spherical-spheroidal mixing coefficients",  J. Open Source Softw. **4**:1683 (2019). [arXiv:1908.10377]
 
-* [9] https://centra.tecnico.ulisboa.pt/network/grit/files/ringdown/  
+* [9] https://pypi.org/project/qnm/

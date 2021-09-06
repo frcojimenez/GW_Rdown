@@ -5356,9 +5356,9 @@ REVIEW: Quasinormal modes of black holes and black branes\".  Class. Quant. \
 Grav. ",
  StyleBox["26",
   FontWeight->"Bold"],
- ":163001 (2009).  [arXiv: 0905.2975]\n\n[5] E. Berti, \
-https://pages.jh.edu/~eberti2/ringdown/\n\n[6] V. Cardoso, \
-https://centra.tecnico.ulisboa.pt/network/grit/files/ringdown/\n\n[7] F. Jim\[EAcute]nez Forteza and \
+ ":163001 (2009).  [arXiv: 0905.2975]\n\n[5] V. Cardoso, \
+https://centra.tecnico.ulisboa.pt/network/grit/files/ringdown/\n\n[6] E. Berti, \
+https://pages.jh.edu/~eberti2/ringdown/\n\n[7] F. Jim\[EAcute]nez Forteza and \
 P. Mourier, \"High-overtone fits to numerical relativity ringdowns: beyond \
 the dismissed n=8 special tone\".  (2021).  [arXiv: 2107.11829]"
 }], "Text",

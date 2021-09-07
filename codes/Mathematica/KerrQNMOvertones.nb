@@ -2172,7 +2172,7 @@ Cell[BoxData[
        " ", "absolute", " ", "variations", " ", "of", " ", "the", " ", 
       "results", " ", "on", " ", "each", " ", "variable", " ", "with", " ", 
       "respect", " ", "to", " ", "the", " ", "previous", " ", 
-      RowBox[{"iterations", "."}]}]}], " ", "*)"}],
+      RowBox[{"iteration", "."}]}]}], " ", "*)"}],
    FontWeight->"Plain"], "\[IndentingNewLine]", "\[IndentingNewLine]", 
   RowBox[{"Timing", "[", "\[IndentingNewLine]", 
    StyleBox["\[IndentingNewLine]", "Text"], 

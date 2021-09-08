@@ -41,11 +41,11 @@ Structure:
 
 # The data/NRFits folder.
 
-You find a list of BBH_SXS_index folders each one corresponding to the 620 SXS NR ringdown fits produced in [7]. In each folder you will find three files:
+You will find there a list of BBH_SXS_index folders, each one corresponding to one of the 620 SXS NR ringdown fits produced in [7]. In each folder you will find three files:
 
-* mass_spin.dat: It contains the normalised final mass and the final dimensionless spin of the given simulation.
+* mass_spin.dat: It contains the normalised final mass and the final dimensionless spin of the given simulation, read off from the simulation's metadata.
 * datafile_nmin0_nmax12.dat: It contains the results of the fits in the following format: mass, spin , mismatch, epsilon, Bayesian Information Criterion (BIC).
-* datafile_BFAmplitudes_nmin0_nmax12.dat. It contains the results of the best fit amplitudes for each NR case. You need Mathematica to load the .mx files.
+* datafile_BFAmplitudes_nmin0_nmax12.mx. It contains the results of the best fit amplitudes for each NR case. You need Mathematica to load the .mx files.
 
 # Description of KerrQNMOvertones.
 

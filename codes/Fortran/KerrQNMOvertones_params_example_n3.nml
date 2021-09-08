@@ -1,0 +1,18 @@
+&params
+s = -2
+l = 2
+m = 2
+af = 0.69
+nfreq = 3
+nang = 0
+winit1 = (0.46, -0.58)
+winit2 = (0.47, -0.59)
+Almninit_default = .true.
+Almninit_alt = (4., 0.)
+FracLevelsStart = 500
+FracLevelsFactor = 1.2
+FracLevelsAngDecrFactor = 1.
+niterMax = 50
+niterMin = 5
+precisionThreshold = 3.0d-11
+/

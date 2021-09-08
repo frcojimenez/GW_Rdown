@@ -36,8 +36,8 @@ Structure:
   * /Fortran. Same version of the KerrQNMOvertones code translated into Fortran 90/Fortran 2003 language for a vastly reduced computing time. It is provided along with a Readme file and two example input parameter files (.nml).
                                    
 * ./data :    
-  * ./QNMdata. It contains the QNM data (tables) for the lmn = 228 and lmn = 229 co-rotating and lmn = 22(8-9) counter-rotating modes, as decribed in reference [7].
-  * ./NRFits. NR fit results obtained by reference [7].                                  
+  * /QNMdata. It contains the QNM data (tables) for the lmn = 228 and lmn = 229 co-rotating and lmn = 22(8-9) counter-rotating modes, as decribed in reference [7].
+  * /NRFits. NR fit results obtained by reference [7].                                  
 
 # The data/NRFits folder.
 

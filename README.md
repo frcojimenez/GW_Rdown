@@ -8,9 +8,10 @@ The RD emerges as the late trail of radiation usually represented as a sum of da
 
 To fully and succesufully use all codes stored here, one needs to have the following codes and versions installed:
 * Python ≥ 3.0 along with the qnm package [8-9] and the numpy package;
-* Mathematica ≥ 11.0.
+* Mathematica ≥ 11.0;
+* (optional, only if one wishes to use the Fortran version of the KerrQNMOvertones code) A Fortran compiler compatible at least with the Fortran 2003 standard. Compatibility with the Fortran 90 or 95 standards is sufficient provided a few lines of the code are disabled (see the Readme file in the ./codes/Fortran folder).
 
-The KerrQNMOvertones code is available in two versions that respectively require only the use of Python (without the need for the qnm package) or only the use of Mathematica.
+The KerrQNMOvertones code is available in three versions that respectively require only the use of Fortran, only the use of Python (without the need for the qnm package), or only the use of Mathematica.
 
 
 # Structure
@@ -22,15 +23,17 @@ In this repository one can find:
 
 all from reference [7].<br>
 
-**Please refer to the above paper if using these codes and results; please also refer to the original works [2-4] describing the Mathematica code available at [5-6] on which the codes KerrQNMOvertone.ipynb and .nb are based, if using the latter codes.**
+**Please refer to the above paper if using these codes and results; please also refer to the original works [2-4] describing the Mathematica code available at [5-6] on which the codes KerrQNMOvertones.nb, .ipynb and .f90 are based, if using the latter codes.**
 
 
 Structure:
 * ./codes :  
-  * Mathematica. It contains two classes of codes, both written in Mathematica. Rdown.nb and Rdown.m: these two (equivalent) codes contain the main functions                                      used to produce the RD models and ansätze (OvertoneModel), to compute the QNM frequencies and damping times (\\[Omega]lmnPy) from                                    the python code qnm [8-9] complemented by our tables for the (l=2,m=2,n=8,9) modes ([7]), or to estimate the final mass and spin from the GW strain (FitRingdownGrid). 
-                                   Moreover, it also includes a code (KerrQNMOvertones) to compute the QNM spectrum from scratch based on the original code from 
-                                   [2-4] and available at [5-6]. 
-  * Python. Same version of the KerrQNMOvertones code translated into Python language.
+  * /Mathematica. It contains two classes of codes, both written in Mathematica. Rdown.nb and Rdown.m: these two (equivalent) codes contain the main functions                                      used to produce the RD models and ansätze (OvertoneModel), to compute the QNM frequencies and damping times (\\[Omega]lmnPy) from                                    the python code qnm [8-9] complemented by our tables for the (l=2,m=2,n=8,9) modes ([7]), or to estimate the final mass and spin
+                               from the GW strain (FitRingdownGrid). 
+                                   Moreover, it also includes a notebook (KerrQNMOvertones.nb) to compute the QNM spectrum from scratch based on the original code 
+                               from [2-4] and available at [5-6]. 
+  * /Python. Same version of the KerrQNMOvertones code translated into Python language.
+  * /Fortran. Same version of the KerrQNMOvertones code translated into Fortran 90/Fortran 2003 language for a vastly reduced computing time. It is provided along with a Readme file and two example input parameter files (.nml).
                                    
 * ./data :    
   * ./QNMdata. It contains the QNM data (tables) for the lmn = 228 and lmn = 229 co-rotating and lmn = 22(8-9) counter-rotating modes, as decribed in reference [7].

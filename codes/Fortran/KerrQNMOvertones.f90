@@ -287,7 +287,7 @@ endif
 print '(A15,F15.12)', "af (input):   ", af
 print '(A8,(F15.12,SP,F16.12," j"))', "wlmn:  ", witer(iter)
 print '(A8,(F15.12,SP,F16.12," j"))', "Almn:  ", Almniter(iter)
-print '(A57,1P,E13.5," ;",E13.5)', "Total variations of wlmn and of Almn over the last 3 steps:", &
+print '(A60,1P,E13.5," ;",E13.5)', "Total variations of wlmn and of Almn over the last 3 steps:", &
                         & abs(witer(iter) - witer(iter-1)) + abs(witer(iter-1) - witer(iter-2)), &
                         & abs(Almniter(iter) - Almniter(iter-1)) + abs(Almniter(iter-1) - Almniter(iter-2))
 print '(A22,I6)', "Number of iterations:", iter

@@ -139,6 +139,7 @@ namelist /params/ &
             & nang, &
 ! Number of inversions (integer) in the computation of Leaver's continued fraction for Almn.
 ! It should be kept at nang = 0 for a more stable recovey of (l=2,m,n) modes.
+! For larger l, nang > 0 may be more suitable --- e.g., nang = l-|s| seems to be appropriate in general.
 !
             & winit1, winit2, &
 ! Two initial-guess values (complex numbers) for the complex QNM frequency, necessary for the secant method.

@@ -2479,13 +2479,13 @@ Cell[BoxData[
              RowBox[{
               RowBox[{"i", "=", "0"}], ",", 
               RowBox[{"Almn1", "=", 
-               RowBox[{"0.999", "*", "Almn"}]}], ",", 
+               RowBox[{"0.9999", "*", "Almn"}]}], ",", 
               RowBox[{"Almn2", "=", 
-               RowBox[{"1.001", "*", "Almn"}]}], ",", "\n", 
+               RowBox[{"1.0001", "*", "Almn"}]}], ",", "\n", 
               RowBox[{"fAlmn1", "=", 
                RowBox[{"Leaver33Ang", "[", 
                 RowBox[{"wang", ",", 
-                 RowBox[{"0.999", "*", "Almn"}], ",", "nang"}], "]"}]}]}], 
+                 RowBox[{"0.9999", "*", "Almn"}], ",", "nang"}], "]"}]}]}], 
              "}"}], ",", 
             RowBox[{"(", 
              RowBox[{

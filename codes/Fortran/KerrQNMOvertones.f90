@@ -212,9 +212,16 @@ br = sqrt(1-af**2)
 
 ! Initialise Almn to its default (Schwarzschild) value unless Almninit_default = .false., in which case use the provided value.
 if (Almninit_default) then
-    Almn = l*(l + 1) - s*(s + 1)
+    if(l /= s) then
+        Almn = l*(l + 1) - s*(s + 1)
+    else
+        Almn = (0.1_hp,0.01_hp)           ! Introduce some deviation in case where Almn = 0
+    endif
 else
     Almn = Almninit_alt
+    if(abs(Almn) < 1.D-4) then
+        Almn = (0.1_hp,0.01_hp)           ! Introduce some deviation in case where Almn ~= 0
+    endif
 endif
 
 
@@ -236,11 +243,11 @@ do while(keepconverging)
 
 
     witer(iter) = findrootLeaverinvw(Almn,fraclevels)
-    print '(A8,(F15.12,SP,F16.12," j"))', "wlmn:  ", witer(iter)
+    print '(A8,(F17.12,SP,F16.12," j"))', "wlmn:  ", witer(iter)
 
 
     Almniter(iter) = findrootLeaverinva(witer(iter),Almn,fraclevelsang)
-    print '(A8,(F15.12,SP,F16.12," j"))', "Almn:  ", Almniter(iter)
+    print '(A8,(F17.12,SP,F16.12," j"))', "Almn:  ", Almniter(iter)
     
     if(iter == 1) then
         print '(A41,1P,E13.5," ;",E13.5)', "Absolute variations in wlmn and Almn:   ", &
@@ -285,8 +292,8 @@ if(max( abs(witer(iter) - witer(iter-1)) + abs(witer(iter-1) - witer(iter-2)), &
     print *, "Warning: maximum number of iterations reached, but convergence is not achieved!"
 endif
 print '(A15,F15.12)', "af (input):   ", af
-print '(A8,(F15.12,SP,F16.12," j"))', "wlmn:  ", witer(iter)
-print '(A8,(F15.12,SP,F16.12," j"))', "Almn:  ", Almniter(iter)
+print '(A8,(F17.12,SP,F16.12," j"))', "wlmn:  ", witer(iter)
+print '(A8,(F17.12,SP,F16.12," j"))', "Almn:  ", Almniter(iter)
 print '(A60,1P,E13.5," ;",E13.5)', "Total variations of wlmn and of Almn over the last 3 steps:", &
                         & abs(witer(iter) - witer(iter-1)) + abs(witer(iter-1) - witer(iter-2)), &
                         & abs(Almniter(iter) - Almniter(iter-1)) + abs(Almniter(iter-1) - Almniter(iter-2))

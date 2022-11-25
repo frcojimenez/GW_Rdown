@@ -1,12 +1,19 @@
+(* Content-type: application/vnd.wolfram.mathematica *)
+
+(*** Wolfram Notebook File ***)
+(* http://www.wolfram.com/nb *)
+
+(* CreatedBy='Mathematica 12.1' *)
+
 (*CacheID: 234*)
 (* Internal cache information:
 NotebookFileLineBreakTest
 NotebookFileLineBreakTest
-NotebookDataPosition[         0,          0]
-NotebookDataLength[    255943,       5479]
-NotebookOptionsPosition[    248113,       5370]
-NotebookOutlinePosition[    248508,       5386]
-CellTagsIndexPosition[    248465,       5383]
+NotebookDataPosition[       158,          7]
+NotebookDataLength[    228529,       4443]
+NotebookOptionsPosition[    220999,       4344]
+NotebookOutlinePosition[    221394,       4360]
+CellTagsIndexPosition[    221351,       4357]
 WindowFrame->Normal*)
 
 (* Beginning of Notebook Content *)
@@ -15,7 +22,7 @@ Notebook[{
 Cell[CellGroupData[{
 Cell["\<\
 Computation of the (l,m,n) quasi-normal mode (QNM) complex frequency \
-\[Omega]lmn and angular separation constant Almn for a spin-weigth-s \
+\[Omega]lmn and angular separation constant Almn for a spin-weight-s \
 perturbation
 of a Kerr (or Schwarzschild) black hole using Leaver's method [1].\
 \>", "Title",
@@ -312,1131 +319,89 @@ Cell[BoxData[
    3.837572946489106*^9, 3.8375729474852448`*^9}, 3.837572980941908*^9, {
    3.837576806328401*^9, 
    3.837576808491939*^9}},ExpressionUUID->"b728dd79-8990-4897-8917-\
-3e0d15925d62"]
-}, Open  ]],
-
-Cell[CellGroupData[{
-
-Cell["Description", "Section",
- CellChangeTimes->{{3.837571820573495*^9, 
-  3.837571823404434*^9}},ExpressionUUID->"66fb992c-5d49-4a84-9f54-\
-fde304302321"],
+3e0d15925d62"],
 
 Cell[BoxData[
- StyleBox[
-  RowBox[{"(*", " ", 
+ RowBox[{"(*", 
+  RowBox[{
    RowBox[{
     RowBox[{
+    "This", " ", "is", " ", "based", " ", "on", " ", "the", " ", "original", 
+     " ", "code", " ", 
+     RowBox[{"from", "[", 
+      RowBox[{"2", "-", "4"}], "]"}], " ", "available", " ", 
+     RowBox[{"at", "[", 
+      RowBox[{"5", "-", "6"}], "]"}]}], ";", 
+    RowBox[{
+    "please", " ", "do", " ", "refer", " ", "to", " ", "these", " ", 
+     "original", " ", "works", " ", "and", " ", "note", " ", "that", " ", 
+     "the", " ", "code", " ", "available", " ", 
+     RowBox[{"at", "[", 
+      RowBox[{"5", "-", "6"}], "]"}], " ", "also", " ", "provides", " ", "a", 
+     " ", "computation", " ", "of", " ", "the", " ", "angular", " ", "and", 
+     " ", "radial", " ", "wavefunctions", " ", "of", " ", "the", " ", "QNMs", 
+     " ", 
      RowBox[{
-     "This", " ", "is", " ", "based", " ", "on", " ", "the", " ", "original", 
-      " ", "code", " ", 
-      RowBox[{"from", 
-       StyleBox[
-        StyleBox[
-         StyleBox[
-          StyleBox[
-           StyleBox[
-            StyleBox[" ", "Text",
-             FontSize->16], "Text",
-            FontSize->16], "Text",
-           FontSize->16], "Text",
-          FontSize->16], "Text",
-         FontSize->16], "Text",
-        FontSize->16], "[", 
-       RowBox[{"2", "-", "4"}], "]"}], " ", "available", " ", 
-      RowBox[{"at", 
-       StyleBox[
-        StyleBox[
-         StyleBox[
-          StyleBox[
-           StyleBox[
-            StyleBox[" ", "Text",
-             FontSize->16], "Text",
-            FontSize->16], "Text",
-           FontSize->16], "Text",
-          FontSize->16], "Text",
-         FontSize->16], "Text",
-        FontSize->16], "[", 
-       RowBox[{"5", "-", "6"}], "]"}], ";", " ", 
-     RowBox[{
-     "please", " ", "do", " ", "refer", " ", "to", " ", "these", " ", 
-      "original", " ", "works", 
-      StyleBox["\[IndentingNewLine]", "Text",
-       FontSize->16], 
-      StyleBox[
-       RowBox[{"  ", 
-        StyleBox[" ", "Text",
-         FontSize->16]}], "Text",
-       FontSize->16], 
-      StyleBox["  ", "Text",
-       FontSize->16], 
-      StyleBox[
-       RowBox[{"  ", 
-        StyleBox[
-         StyleBox[
-          StyleBox[" ", "Text",
-           FontSize->16], "Text",
-          FontSize->16], "Text",
-         FontSize->16]}], "Text",
-       FontSize->16], "and", " ", "note", " ", "that", " ", "the", " ", 
-      "code", " ", "available", " ", 
-      RowBox[{"at", 
-       StyleBox[
-        StyleBox[
-         StyleBox[
-          StyleBox[" ", "Text",
-           FontSize->16], "Text",
-          FontSize->16], "Text",
-         FontSize->16], "Text",
-        FontSize->16], "[", 
-       RowBox[{"5", "-", "6"}], "]"}], " ", "also", " ", "provides", " ", 
-      "a", " ", "computation", " ", "of", " ", "the", " ", "angular", " ", 
-      "and", " ", "radial", " ", "wavefunctions", " ", "of", " ", "the", " ", 
-      "QNMs", " ", 
-      RowBox[{
-       RowBox[{"(", 
-        RowBox[{"not", " ", "included", " ", "here"}], ")"}], ".", 
-       StyleBox[
-        StyleBox["\[IndentingNewLine]", "Text",
-         FontSize->16], "Text",
-        FontSize->16], 
-       StyleBox[
-        StyleBox[
-         StyleBox[
-          StyleBox["\[IndentingNewLine]", "Text",
-           FontSize->16], "Text",
-          FontSize->16], "Text",
-         FontSize->16], "Text",
-        FontSize->16], 
-       StyleBox[
-        RowBox[{"  ", 
-         StyleBox[
-          StyleBox[" ", "Text",
-           FontSize->16], "Text",
-          FontSize->16]}], "Text",
-        FontSize->16]}], 
-      StyleBox["  ", "Text",
-       FontSize->16], "The", " ", "specificities", " ", "of", " ", "this", 
-      " ", "version", " ", "are", " ", "described", " ", 
-      RowBox[{"in", 
-       StyleBox[
-        StyleBox[
-         StyleBox[
-          StyleBox[" ", "Text",
-           FontSize->16], "Text",
-          FontSize->16], "Text",
-         FontSize->16], "Text",
-        FontSize->16], "[", "7", "]"}], " ", "and", " ", 
-      RowBox[{"include", ":", " ", 
-       RowBox[{"the", " ", "use", " ", "of", " ", 
-        RowBox[{"Leaver", "'"}], "s", " ", 
-        RowBox[{"inversions", 
-         StyleBox[
-          StyleBox[
-           StyleBox[
-            StyleBox[
-             StyleBox[
-              StyleBox[" ", "Text",
-               FontSize->16], "Text",
-              FontSize->16], "Text",
-             FontSize->16], "Text",
-            FontSize->16], "Text",
-           FontSize->16], "Text",
-          FontSize->16], "[", "1", "]"}], " ", "in", " ", "the", " ", 
-        "calculation", " ", "of", " ", "the", " ", "continued", " ", 
-        "fractions", " ", "for", " ", "a", " ", "more", " ", "stable", " ", 
-        "recovery", " ", "of", " ", "overtones"}]}]}]}], ",", 
-    StyleBox["\[IndentingNewLine]", "Text",
-     FontSize->16], "     ", 
+      RowBox[{"(", 
+       RowBox[{"not", " ", "included", " ", "here"}], ")"}], ".", "The"}], 
+     " ", "specificities", " ", "of", " ", "this", " ", "version", " ", "are",
+      " ", "described", " ", 
+     RowBox[{"in", "[", "7", "]"}], " ", "and", " ", 
+     RowBox[{"include", ":", 
+      RowBox[{"the", " ", "use", " ", "of", " ", 
+       RowBox[{"Leaver", "'"}], "s", " ", 
+       RowBox[{"inversions", "[", "1", "]"}], " ", "in", " ", "the", " ", 
+       "calculation", " ", "of", " ", "the", " ", "continued", " ", 
+       "fractions", " ", "for", " ", "a", " ", "more", " ", "stable", " ", 
+       "recovery", " ", "of", " ", "overtones"}]}]}]}], ",", 
+   RowBox[{
+    RowBox[{
+    "much", " ", "larger", " ", "numbers", " ", "of", " ", "steps", " ", "in",
+      " ", "the", " ", "approximations", " ", "to", " ", "the", " ", 
+     "continued", " ", "fractions", " ", "allowed", " ", "by", " ", "the", 
+     " ", "direct", " ", "implementation", " ", "of", " ", "the", " ", 
+     "secant", " ", "method", " ", "instead", " ", "of", " ", 
+     RowBox[{"Mathematica", "'"}], "s", " ", "memory"}], "-", 
+    RowBox[{"consuming", " ", "built"}], "-", 
+    RowBox[{"in", " ", "root"}], "-", 
+    RowBox[{"finding", " ", "algorithm"}]}], ",", 
+   RowBox[{
+   "and", " ", "a", " ", "progressive", " ", "increase", " ", "of", " ", 
+    "this", " ", "number", " ", "of", " ", "steps", " ", "over", " ", 
+    "successive", " ", "iterations", " ", "along", " ", "with", " ", "a", " ",
+     "convergence", " ", "criterion"}], ",", 
+   RowBox[{
+    RowBox[{
+    "that", " ", "can", " ", "be", " ", "of", " ", "use", " ", "for", " ", 
+     "modes", " ", "for", " ", "which", " ", 
+     RowBox[{"Leaver", "'"}], "s", " ", "method", " ", "is", " ", "less", " ",
+      "efficient", " ", "such", " ", "as", " ", "near", " ", "the", " ", 
+     "algebraically", " ", "special", " ", "Schwarzschild", " ", "mode", " ", 
+     "\[Omega]"}], "=", 
     RowBox[{
      RowBox[{
-      StyleBox[
-       RowBox[{"  ", 
-        StyleBox[" ", "Text",
-         FontSize->16]}], "Text",
-       FontSize->16], "  ", 
-      StyleBox[
-       RowBox[{
-        StyleBox[
-         StyleBox["m", "Text",
-          FontSize->16], "Text",
-         FontSize->16], "uch"}]], " ", "larger", " ", "numbers", " ", "of", 
-      " ", "steps", " ", "in", " ", "the", " ", "approximations", " ", "to", 
-      " ", "the", " ", "continued", " ", "fractions", " ", "allowed", " ", 
-      "by", " ", "the", " ", "direct", " ", "implementation", " ", "of", " ", 
-      "the", " ", "secant", " ", "method", " ", "instead", " ", "of", " ", 
-      RowBox[{"Mathematica", "'"}], "s", 
-      StyleBox["\[IndentingNewLine]", "Text",
-       FontSize->16], 
-      StyleBox[
-       RowBox[{"  ", 
-        StyleBox[" ", "Text",
-         FontSize->16]}], "Text",
-       FontSize->16], 
-      StyleBox["  ", "Text",
-       FontSize->16], "memory"}], "-", 
-     RowBox[{"consuming", 
-      StyleBox[" ", "Text",
-       FontSize->16], "built"}], "-", 
-     RowBox[{"in", " ", "root"}], "-", 
-     RowBox[{"finding", " ", "algorithm"}]}], ",", " ", 
-    RowBox[{
-     StyleBox[
-      RowBox[{"a", 
-       StyleBox[
-        StyleBox[
-         StyleBox["n", "Text",
-          FontSize->16], "Text",
-         FontSize->16], "Text",
-        FontSize->16], 
-       StyleBox[
-        StyleBox[
-         StyleBox[
-          StyleBox["d", "Text",
-           FontSize->16], "Text",
-          FontSize->16], "Text",
-         FontSize->16], "Text",
-        FontSize->16]}]], 
-     StyleBox[" ", "Text",
-      FontSize->16], "a", 
-     StyleBox[" ", "Text",
-      FontSize->16], 
-     StyleBox[
-      RowBox[{
-       StyleBox[
-        StyleBox["p", "Text",
-         FontSize->16], "Text",
-        FontSize->16], "rogressive"}]], " ", 
-     StyleBox["increase", "Text",
-      FontSize->16], 
-     StyleBox[" ", "Text",
-      FontSize->16], 
-     StyleBox[
-      RowBox[{
-       StyleBox["o", "Text",
-        FontSize->16], "f"}], "Text",
-      FontSize->16], 
-     StyleBox[" ", "Text",
-      FontSize->16], 
-     StyleBox[
-      RowBox[{
-       StyleBox[
-        StyleBox["t", "Text",
-         FontSize->16], "Text",
-        FontSize->16], "his"}]], " ", 
-     StyleBox["number", "Text",
-      FontSize->16], 
-     StyleBox[" ", "Text",
-      FontSize->16], 
-     StyleBox[
-      RowBox[{
-       StyleBox["o", "Text",
-        FontSize->16], "f"}], "Text",
-      FontSize->16], 
-     StyleBox[" ", "Text",
-      FontSize->16], 
-     StyleBox[
-      RowBox[{
-       StyleBox[
-        StyleBox["s", "Text",
-         FontSize->16], "Text",
-        FontSize->16], "teps"}]], " ", 
-     StyleBox["over", "Text",
-      FontSize->16], 
-     StyleBox[" ", "Text",
-      FontSize->16], 
-     StyleBox[
-      RowBox[{
-       StyleBox[
-        StyleBox["s", "Text",
-         FontSize->16], "Text",
-        FontSize->16], "uccessive"}]], " ", 
-     StyleBox["iterations", "Text",
-      FontSize->16], 
-     StyleBox[" ", "Text",
-      FontSize->16], 
-     StyleBox[
-      RowBox[{
-       StyleBox[
-        StyleBox["a", "Text",
-         FontSize->16], "Text",
-        FontSize->16], "lo", 
-       StyleBox[
-        StyleBox[
-         StyleBox["n", "Text",
-          FontSize->16], "Text",
-         FontSize->16], "Text",
-        FontSize->16], 
-       StyleBox[
-        StyleBox[
-         StyleBox[
-          StyleBox["g", "Text",
-           FontSize->16], "Text",
-          FontSize->16], "Text",
-         FontSize->16], "Text",
-        FontSize->16]}]], 
-     StyleBox[" ", "Text",
-      FontSize->16], 
-     StyleBox[
-      RowBox[{
-       StyleBox[
-        StyleBox[
-         StyleBox[
-          StyleBox[
-           StyleBox["w", "Text",
-            FontSize->16], "Text",
-           FontSize->16], "Text",
-          FontSize->16], "Text",
-         FontSize->16], "Text",
-        FontSize->16], "it", 
-       StyleBox[
-        StyleBox[
-         StyleBox["h", "Text",
-          FontSize->16], "Text",
-         FontSize->16], "Text",
-        FontSize->16]}]], 
-     StyleBox[" ", "Text",
-      FontSize->16], 
-     StyleBox[
-      StyleBox[
-       StyleBox[
-        StyleBox["a", "Text",
-         FontSize->16], "Text",
-        FontSize->16], "Text",
-       FontSize->16], "Text",
-      FontSize->16], 
-     StyleBox[" ", "Text",
-      FontSize->16], 
-     StyleBox[
-      RowBox[{
-       StyleBox[
-        StyleBox["c", "Text",
-         FontSize->16], "Text",
-        FontSize->16], "onvergence"}]], " ", 
-     StyleBox["criterion", "Text",
-      FontSize->16]}], 
-    StyleBox[
-     StyleBox[
-      StyleBox[
-       StyleBox[",", "Text",
-        FontSize->16], "Text",
-       FontSize->16], "Text",
-      FontSize->16], "Text",
-     FontSize->16], 
-    StyleBox[" ", "Text",
-     FontSize->16], 
-    RowBox[{
+      RowBox[{"-", "2"}], " ", 
+      RowBox[{"\[ImaginaryI]", ".", "The"}], " ", "units", " ", "convention", 
+      " ", "also", " ", "differs", " ", 
+      RowBox[{"from", "[", 
+       RowBox[{"1", "-", "6"}], "]"}], " ", "where", " ", "the", " ", "mass", 
+      " ", "and", " ", "maximal", " ", "dimensionless", " ", "spin", " ", 
+      "are", " ", "set", " ", "to", " ", 
+      RowBox[{"1", "/", "2."}], " ", "This", " ", "version", " ", "requires", 
+      " ", "two", " ", "close", " ", "but", " ", "distinct", " ", "initial", 
+      " ", "guesses", " ", "for", " ", 
+      RowBox[{"\[Omega]lmn", ".", "Units"}], " ", "are", " ", "set", " ", 
+      "such", " ", "that", " ", "the", " ", "mass", " ", "of", " ", "the", 
+      " ", "black", " ", "hole", " ", "is", " ", "1.", " ", "Note", " ", 
+      "that", " ", "this", " ", "version", " ", "has", " ", "not", " ", 
+      "been", " ", "extensively", " ", "tested", " ", "for", " ", "s"}], 
+     "\[NotEqual]", 
      RowBox[{
-      StyleBox[
-       RowBox[{
-        StyleBox["th", "Text",
-         FontSize->16], "at"}]], 
-      StyleBox[" ", "Text",
-       FontSize->16], 
-      StyleBox[
-       RowBox[{"ca", 
-        StyleBox[
-         StyleBox[
-          StyleBox[
-           StyleBox["n", "Text",
-            FontSize->16], "Text",
-           FontSize->16], "Text",
-          FontSize->16], "Text",
-         FontSize->16]}], "Text",
-       FontSize->16], 
-      StyleBox[" ", "Text",
-       FontSize->16], 
-      StyleBox["be", "Text",
-       FontSize->16], 
-      StyleBox[" ", "Text",
-       FontSize->16], 
-      StyleBox["of", "Text",
-       FontSize->16], 
-      StyleBox[" ", "Text",
-       FontSize->16], 
-      StyleBox[
-       RowBox[{"us", 
-        StyleBox[
-         StyleBox[
-          StyleBox[
-           StyleBox["e", "Text",
-            FontSize->16], "Text",
-           FontSize->16], "Text",
-          FontSize->16], "Text",
-         FontSize->16]}], "Text",
-       FontSize->16], 
-      StyleBox["\[IndentingNewLine]", "Text",
-       FontSize->16], 
-      StyleBox["     ", "Text",
-       FontSize->16], 
-      StyleBox[
-       RowBox[{"fo", 
-        StyleBox[
-         StyleBox[
-          StyleBox[
-           StyleBox["r", "Text",
-            FontSize->16], "Text",
-           FontSize->16], "Text",
-          FontSize->16], "Text",
-         FontSize->16]}], "Text",
-       FontSize->16], 
-      StyleBox[" ", "Text",
-       FontSize->16], 
-      StyleBox[
-       RowBox[{
-        StyleBox["mo", "Text",
-         FontSize->16], "de", 
-        StyleBox[
-         StyleBox[
-          StyleBox[
-           StyleBox["s", "Text",
-            FontSize->16], "Text",
-           FontSize->16], "Text",
-          FontSize->16], "Text",
-         FontSize->16]}]], 
-      StyleBox[" ", "Text",
-       FontSize->16], 
-      StyleBox[
-       RowBox[{"fo", 
-        StyleBox[
-         StyleBox[
-          StyleBox[
-           StyleBox["r", "Text",
-            FontSize->16], "Text",
-           FontSize->16], "Text",
-          FontSize->16], "Text",
-         FontSize->16]}], "Text",
-       FontSize->16], 
-      StyleBox[" ", "Text",
-       FontSize->16], 
-      StyleBox[
-       RowBox[{
-        StyleBox["wh", "Text",
-         FontSize->16], "ic", 
-        StyleBox[
-         StyleBox[
-          StyleBox[
-           StyleBox["h", "Text",
-            FontSize->16], "Text",
-           FontSize->16], "Text",
-          FontSize->16], "Text",
-         FontSize->16]}]], 
-      StyleBox[" ", "Text",
-       FontSize->16], 
-      RowBox[{
-       StyleBox[
-        RowBox[{
-         StyleBox["Le", "Text",
-          FontSize->16], "av", 
-         StyleBox[
-          StyleBox[
-           StyleBox[
-            StyleBox["e", "Text",
-             FontSize->16], "Text",
-            FontSize->16], "Text",
-           FontSize->16], "Text",
-          FontSize->16], 
-         StyleBox[
-          StyleBox[
-           StyleBox[
-            StyleBox[
-             StyleBox["r", "Text",
-              FontSize->16], "Text",
-             FontSize->16], "Text",
-            FontSize->16], "Text",
-           FontSize->16], "Text",
-          FontSize->16]}]], 
-       StyleBox[
-        StyleBox[
-         StyleBox[
-          StyleBox[
-           StyleBox["'", "Text",
-            FontSize->16], "Text",
-           FontSize->16], "Text",
-          FontSize->16], "Text",
-         FontSize->16], "Text",
-        FontSize->16]}], 
-      StyleBox[
-       StyleBox[
-        StyleBox[
-         StyleBox[
-          StyleBox["s", "Text",
-           FontSize->16], "Text",
-          FontSize->16], "Text",
-         FontSize->16], "Text",
-        FontSize->16], "Text",
-       FontSize->16], 
-      StyleBox[" ", "Text",
-       FontSize->16], 
-      StyleBox[
-       RowBox[{
-        StyleBox["me", "Text",
-         FontSize->16], "th", 
-        StyleBox[
-         StyleBox[
-          StyleBox[
-           StyleBox["o", "Text",
-            FontSize->16], "Text",
-           FontSize->16], "Text",
-          FontSize->16], "Text",
-         FontSize->16], 
-        StyleBox[
-         StyleBox[
-          StyleBox[
-           StyleBox[
-            StyleBox["d", "Text",
-             FontSize->16], "Text",
-            FontSize->16], "Text",
-           FontSize->16], "Text",
-          FontSize->16], "Text",
-         FontSize->16]}]], 
-      StyleBox[" ", "Text",
-       FontSize->16], 
-      StyleBox["is", "Text",
-       FontSize->16], 
-      StyleBox[" ", "Text",
-       FontSize->16], 
-      StyleBox[
-       RowBox[{
-        StyleBox["le", "Text",
-         FontSize->16], "ss"}]], 
-      StyleBox[" ", "Text",
-       FontSize->16], 
-      StyleBox[
-       RowBox[{
-        StyleBox["ef", "Text",
-         FontSize->16], "fi", 
-        StyleBox[
-         StyleBox[
-          StyleBox[
-           StyleBox["c", "Text",
-            FontSize->16], "Text",
-           FontSize->16], "Text",
-          FontSize->16], "Text",
-         FontSize->16], "ie", 
-        StyleBox[
-         StyleBox[
-          StyleBox[
-           StyleBox["n", "Text",
-            FontSize->16], "Text",
-           FontSize->16], "Text",
-          FontSize->16], "Text",
-         FontSize->16], 
-        StyleBox[
-         StyleBox[
-          StyleBox[
-           StyleBox[
-            StyleBox["t", "Text",
-             FontSize->16], "Text",
-            FontSize->16], "Text",
-           FontSize->16], "Text",
-          FontSize->16], "Text",
-         FontSize->16]}]], 
-      StyleBox[" ", "Text",
-       FontSize->16], 
-      StyleBox[
-       RowBox[{
-        StyleBox["su", "Text",
-         FontSize->16], "ch"}]], 
-      StyleBox[" ", "Text",
-       FontSize->16], 
-      StyleBox["as", "Text",
-       FontSize->16], 
-      StyleBox[" ", "Text",
-       FontSize->16], 
-      StyleBox[
-       RowBox[{
-        StyleBox["ne", "Text",
-         FontSize->16], "ar"}]], 
-      StyleBox[" ", "Text",
-       FontSize->16], 
-      StyleBox[
-       RowBox[{"th", 
-        StyleBox[
-         StyleBox[
-          StyleBox[
-           StyleBox["e", "Text",
-            FontSize->16], "Text",
-           FontSize->16], "Text",
-          FontSize->16], "Text",
-         FontSize->16]}], "Text",
-       FontSize->16], 
-      StyleBox[" ", "Text",
-       FontSize->16], 
-      StyleBox[
-       RowBox[{
-        StyleBox["al", "Text",
-         FontSize->16], "ge", 
-        StyleBox[
-         StyleBox[
-          StyleBox[
-           StyleBox["b", "Text",
-            FontSize->16], "Text",
-           FontSize->16], "Text",
-          FontSize->16], "Text",
-         FontSize->16], "ra", 
-        StyleBox[
-         StyleBox[
-          StyleBox[
-           StyleBox["i", "Text",
-            FontSize->16], "Text",
-           FontSize->16], "Text",
-          FontSize->16], "Text",
-         FontSize->16], "ca", 
-        StyleBox[
-         StyleBox[
-          StyleBox[
-           StyleBox["l", "Text",
-            FontSize->16], "Text",
-           FontSize->16], "Text",
-          FontSize->16], "Text",
-         FontSize->16], "ly"}]], 
-      StyleBox[" ", "Text",
-       FontSize->16], 
-      StyleBox[
-       RowBox[{
-        StyleBox["sp", "Text",
-         FontSize->16], "ec", 
-        StyleBox[
-         StyleBox[
-          StyleBox[
-           StyleBox["i", "Text",
-            FontSize->16], "Text",
-           FontSize->16], "Text",
-          FontSize->16], "Text",
-         FontSize->16], "al"}]], 
-      StyleBox[" ", "Text",
-       FontSize->16], 
-      StyleBox[
-       RowBox[{
-        StyleBox["Sc", "Text",
-         FontSize->16], "hw", 
-        StyleBox[
-         StyleBox[
-          StyleBox[
-           StyleBox["a", "Text",
-            FontSize->16], "Text",
-           FontSize->16], "Text",
-          FontSize->16], "Text",
-         FontSize->16], "rz", 
-        StyleBox[
-         StyleBox[
-          StyleBox[
-           StyleBox["s", "Text",
-            FontSize->16], "Text",
-           FontSize->16], "Text",
-          FontSize->16], "Text",
-         FontSize->16], "ch", 
-        StyleBox[
-         StyleBox[
-          StyleBox[
-           StyleBox["i", "Text",
-            FontSize->16], "Text",
-           FontSize->16], "Text",
-          FontSize->16], "Text",
-         FontSize->16], "ld"}]], 
-      StyleBox[" ", "Text",
-       FontSize->16], 
-      StyleBox[
-       RowBox[{
-        StyleBox["mo", "Text",
-         FontSize->16], "de"}]], 
-      StyleBox[" ", "Text",
-       FontSize->16], "\[Omega]"}], " ", "=", 
-     StyleBox[" ", "Text",
-      FontSize->16], 
-     RowBox[{
-      RowBox[{
-       RowBox[{"-", " ", "2"}], " ", 
-       RowBox[{"\[ImaginaryI]", 
-        StyleBox[
-         StyleBox[
-          StyleBox[
-           StyleBox[".", "Text",
-            FontSize->16], "Text",
-           FontSize->16], "Text",
-          FontSize->16], "Text",
-         FontSize->16], 
-        StyleBox["\[IndentingNewLine]", "Text",
-         FontSize->16], 
-        StyleBox[
-         RowBox[{
-          StyleBox[
-           StyleBox[
-            StyleBox[
-             StyleBox[
-              StyleBox["T", "Text",
-               FontSize->16], "Text",
-              FontSize->16], "Text",
-             FontSize->16], "Text",
-            FontSize->16], "Text",
-           FontSize->16], "he"}]]}], " ", 
-       StyleBox[
-        RowBox[{
-         StyleBox["un", "Text",
-          FontSize->16], "it", 
-         StyleBox[
-          StyleBox[
-           StyleBox["s", "Text",
-            FontSize->16], "Text",
-           FontSize->16], "Text",
-          FontSize->16]}]], " ", 
-       StyleBox[
-        RowBox[{
-         StyleBox["co", "Text",
-          FontSize->16], "nv", 
-         StyleBox[
-          StyleBox[
-           StyleBox["e", "Text",
-            FontSize->16], "Text",
-           FontSize->16], "Text",
-          FontSize->16], "nt", 
-         StyleBox[
-          StyleBox[
-           StyleBox["i", "Text",
-            FontSize->16], "Text",
-           FontSize->16], "Text",
-          FontSize->16], "on"}]], " ", 
-       RowBox[{
-        StyleBox["al", "Text",
-         FontSize->16], "so"}], " ", 
-       StyleBox[
-        RowBox[{
-         StyleBox["di", "Text",
-          FontSize->16], "ff", 
-         StyleBox[
-          StyleBox[
-           StyleBox["e", "Text",
-            FontSize->16], "Text",
-           FontSize->16], "Text",
-          FontSize->16], "rs"}]], " ", 
-       RowBox[{
-        StyleBox[
-         RowBox[{
-          StyleBox["fr", "Text",
-           FontSize->16], "om"}]], 
-        StyleBox[
-         StyleBox[
-          StyleBox[" ", "Text",
-           FontSize->16], "Text",
-          FontSize->16], "Text",
-         FontSize->16], 
-        StyleBox[
-         StyleBox[
-          StyleBox[
-           StyleBox["[", "Text",
-            FontSize->16], "Text",
-           FontSize->16], "Text",
-          FontSize->16], "Text",
-         FontSize->16], 
-        StyleBox[
-         RowBox[{
-          StyleBox[
-           StyleBox[
-            StyleBox["1", "Text",
-             FontSize->16], "Text",
-            FontSize->16], "Text",
-           FontSize->16], "-", 
-          StyleBox[
-           StyleBox[
-            StyleBox[
-             StyleBox[
-              StyleBox["6", "Text",
-               FontSize->16], "Text",
-              FontSize->16], "Text",
-             FontSize->16], "Text",
-            FontSize->16], "Text",
-           FontSize->16]}], "Text",
-         FontSize->16], 
-        StyleBox[
-         StyleBox[
-          StyleBox[
-           StyleBox[
-            StyleBox[
-             StyleBox[
-              StyleBox["]", "Text",
-               FontSize->16], "Text",
-              FontSize->16], "Text",
-             FontSize->16], "Text",
-            FontSize->16], "Text",
-           FontSize->16], "Text",
-          FontSize->16], "Text",
-         FontSize->16]}], " ", 
-       StyleBox[
-        RowBox[{
-         StyleBox["wh", "Text",
-          FontSize->16], "er", 
-         StyleBox[
-          StyleBox[
-           StyleBox["e", "Text",
-            FontSize->16], "Text",
-           FontSize->16], "Text",
-          FontSize->16]}]], " ", 
-       StyleBox[
-        RowBox[{"th", 
-         StyleBox[
-          StyleBox[
-           StyleBox["e", "Text",
-            FontSize->16], "Text",
-           FontSize->16], "Text",
-          FontSize->16]}], "Text",
-        FontSize->16], " ", 
-       StyleBox[
-        RowBox[{
-         StyleBox["ma", "Text",
-          FontSize->16], "ss"}]], " ", 
-       StyleBox[
-        RowBox[{"an", 
-         StyleBox[
-          StyleBox[
-           StyleBox["d", "Text",
-            FontSize->16], "Text",
-           FontSize->16], "Text",
-          FontSize->16]}], "Text",
-        FontSize->16], " ", 
-       StyleBox[
-        RowBox[{
-         StyleBox["ma", "Text",
-          FontSize->16], "xi", 
-         StyleBox[
-          StyleBox[
-           StyleBox["m", "Text",
-            FontSize->16], "Text",
-           FontSize->16], "Text",
-          FontSize->16], "al"}]], " ", 
-       StyleBox[
-        RowBox[{
-         StyleBox["di", "Text",
-          FontSize->16], "me", 
-         StyleBox[
-          StyleBox[
-           StyleBox["n", "Text",
-            FontSize->16], "Text",
-           FontSize->16], "Text",
-          FontSize->16], "si", 
-         StyleBox[
-          StyleBox[
-           StyleBox["o", "Text",
-            FontSize->16], "Text",
-           FontSize->16], "Text",
-          FontSize->16], "nl", 
-         StyleBox[
-          StyleBox[
-           StyleBox["e", "Text",
-            FontSize->16], "Text",
-           FontSize->16], "Text",
-          FontSize->16], "ss"}]], " ", 
-       StyleBox[
-        RowBox[{
-         StyleBox["sp", "Text",
-          FontSize->16], "in"}]], " ", 
-       StyleBox[
-        RowBox[{"ar", 
-         StyleBox[
-          StyleBox[
-           StyleBox["e", "Text",
-            FontSize->16], "Text",
-           FontSize->16], "Text",
-          FontSize->16]}], "Text",
-        FontSize->16], " ", 
-       StyleBox[
-        RowBox[{"se", 
-         StyleBox[
-          StyleBox[
-           StyleBox["t", "Text",
-            FontSize->16], "Text",
-           FontSize->16], "Text",
-          FontSize->16]}], "Text",
-        FontSize->16], " ", 
-       StyleBox["to", "Text",
-        FontSize->16], " ", 
-       StyleBox[
-        StyleBox[
-         RowBox[{
-          StyleBox[
-           StyleBox["1", "Text",
-            FontSize->16], "Text",
-           FontSize->16], 
-          StyleBox[
-           StyleBox["/", "Text",
-            FontSize->16], "Text",
-           FontSize->16], 
-          RowBox[{
-           StyleBox[
-            StyleBox[
-             StyleBox["2", "Text",
-              FontSize->16], "Text",
-             FontSize->16], "Text",
-            FontSize->16], 
-           StyleBox[
-            StyleBox[".", "Text",
-             FontSize->16], "Text",
-            FontSize->16]}]}], "Text",
-         FontSize->16], "Text",
-        FontSize->16], " ", "This", " ", "version", " ", "requires", " ", 
-       "two", " ", "close", " ", "but", " ", "distinct", " ", "initial", " ", 
-       "guesses", " ", "for", " ", 
-       RowBox[{"\[Omega]lmn", ".", 
-        StyleBox[
-         StyleBox[
-          StyleBox[
-           StyleBox[
-            StyleBox["\[IndentingNewLine]", "Text",
-             FontSize->16], "Text",
-            FontSize->16], "Text",
-           FontSize->16], "Text",
-          FontSize->16], "Text",
-         FontSize->16], 
-        StyleBox[
-         StyleBox[
-          StyleBox[
-           StyleBox[
-            StyleBox[
-             StyleBox["\[IndentingNewLine]", "Text",
-              FontSize->16], "Text",
-             FontSize->16], "Text",
-            FontSize->16], "Text",
-           FontSize->16], "Text",
-          FontSize->16], "Text",
-         FontSize->16], 
-        StyleBox[
-         StyleBox[
-          StyleBox[
-           StyleBox[
-            StyleBox["Units", "Text",
-             FontSize->16], "Text",
-            FontSize->16], "Text",
-           FontSize->16], "Text",
-          FontSize->16], "Text",
-         FontSize->16]}], 
-       StyleBox[" ", "Text",
-        FontSize->16], 
-       StyleBox[
-        StyleBox[
-         StyleBox[
-          StyleBox[
-           StyleBox["are", "Text",
-            FontSize->16], "Text",
-           FontSize->16], "Text",
-          FontSize->16], "Text",
-         FontSize->16], "Text",
-        FontSize->16], 
-       StyleBox[" ", "Text",
-        FontSize->16], 
-       StyleBox[
-        StyleBox[
-         StyleBox[
-          StyleBox[
-           StyleBox["set", "Text",
-            FontSize->16], "Text",
-           FontSize->16], "Text",
-          FontSize->16], "Text",
-         FontSize->16], "Text",
-        FontSize->16], 
-       StyleBox[" ", "Text",
-        FontSize->16], 
-       StyleBox[
-        StyleBox[
-         StyleBox[
-          StyleBox[
-           StyleBox["such", "Text",
-            FontSize->16], "Text",
-           FontSize->16], "Text",
-          FontSize->16], "Text",
-         FontSize->16], "Text",
-        FontSize->16], 
-       StyleBox[" ", "Text",
-        FontSize->16], 
-       StyleBox[
-        StyleBox[
-         StyleBox[
-          StyleBox[
-           StyleBox["that", "Text",
-            FontSize->16], "Text",
-           FontSize->16], "Text",
-          FontSize->16], "Text",
-         FontSize->16], "Text",
-        FontSize->16], 
-       StyleBox[" ", "Text",
-        FontSize->16], 
-       StyleBox[
-        StyleBox[
-         StyleBox[
-          StyleBox[
-           StyleBox["the", "Text",
-            FontSize->16], "Text",
-           FontSize->16], "Text",
-          FontSize->16], "Text",
-         FontSize->16], "Text",
-        FontSize->16], 
-       StyleBox[" ", "Text",
-        FontSize->16], 
-       StyleBox[
-        StyleBox[
-         StyleBox[
-          StyleBox[
-           StyleBox["mass", "Text",
-            FontSize->16], "Text",
-           FontSize->16], "Text",
-          FontSize->16], "Text",
-         FontSize->16], "Text",
-        FontSize->16], 
-       StyleBox[" ", "Text",
-        FontSize->16], 
-       StyleBox[
-        StyleBox[
-         StyleBox[
-          StyleBox[
-           StyleBox["of", "Text",
-            FontSize->16], "Text",
-           FontSize->16], "Text",
-          FontSize->16], "Text",
-         FontSize->16], "Text",
-        FontSize->16], 
-       StyleBox[" ", "Text",
-        FontSize->16], 
-       StyleBox[
-        StyleBox[
-         StyleBox[
-          StyleBox[
-           StyleBox["the", "Text",
-            FontSize->16], "Text",
-           FontSize->16], "Text",
-          FontSize->16], "Text",
-         FontSize->16], "Text",
-        FontSize->16], 
-       StyleBox[" ", "Text",
-        FontSize->16], 
-       StyleBox[
-        StyleBox[
-         StyleBox[
-          StyleBox[
-           StyleBox["black", "Text",
-            FontSize->16], "Text",
-           FontSize->16], "Text",
-          FontSize->16], "Text",
-         FontSize->16], "Text",
-        FontSize->16], 
-       StyleBox[" ", "Text",
-        FontSize->16], 
-       StyleBox[
-        StyleBox[
-         StyleBox[
-          StyleBox[
-           StyleBox["hole", "Text",
-            FontSize->16], "Text",
-           FontSize->16], "Text",
-          FontSize->16], "Text",
-         FontSize->16], "Text",
-        FontSize->16], 
-       StyleBox[" ", "Text",
-        FontSize->16], 
-       StyleBox[
-        StyleBox[
-         StyleBox[
-          StyleBox[
-           StyleBox["is", "Text",
-            FontSize->16], "Text",
-           FontSize->16], "Text",
-          FontSize->16], "Text",
-         FontSize->16], "Text",
-        FontSize->16], 
-       StyleBox[" ", "Text",
-        FontSize->16], 
-       StyleBox[
-        StyleBox[
-         StyleBox[
-          StyleBox[
-           StyleBox["1.", "Text",
-            FontSize->16], "Text",
-           FontSize->16], "Text",
-          FontSize->16], "Text",
-         FontSize->16], "Text",
-        FontSize->16], "\[IndentingNewLine]", "\[IndentingNewLine]", 
-       StyleBox[
-        RowBox[{
-         StyleBox[
-          StyleBox["N", "Text",
-           FontSize->16], "Text",
-          FontSize->16], "ote"}]], " ", 
-       StyleBox["that", "Text",
-        FontSize->16], " ", 
-       StyleBox[
-        RowBox[{
-         StyleBox[
-          StyleBox["t", "Text",
-           FontSize->16], "Text",
-          FontSize->16], "his"}]], " ", 
-       StyleBox["version", "Text",
-        FontSize->16], " ", 
-       StyleBox[
-        RowBox[{
-         StyleBox[
-          StyleBox["h", "Text",
-           FontSize->16], "Text",
-          FontSize->16], "as"}]], " ", 
-       StyleBox[
-        StyleBox[
-         StyleBox[
-          StyleBox[
-           StyleBox[
-            StyleBox[
-             StyleBox[
-              StyleBox["not", "Text",
-               FontSize->16], "Text",
-              FontSize->16], "Text",
-             FontSize->16], "Text",
-            FontSize->16], "Text",
-           FontSlant->"Italic"], "Text",
-          FontSize->16], "Text",
-         FontSize->16], "Text",
-        FontSize->16], " ", 
-       StyleBox[
-        RowBox[{
-         StyleBox[
-          StyleBox["b", "Text",
-           FontSize->16], "Text",
-          FontSize->16], "een"}]], " ", 
-       StyleBox["extensively", "Text",
-        FontSize->16], " ", 
-       StyleBox[
-        RowBox[{
-         StyleBox[
-          StyleBox["t", "Text",
-           FontSize->16], "Text",
-          FontSize->16], "ested"}]], " ", "for", " ", 
-       StyleBox["s", "Text",
-        FontSize->16]}], 
-      StyleBox[" ", "Text",
-       FontSize->16], "\[NotEqual]", " ", 
-      RowBox[{
-       StyleBox[
-        RowBox[{"-", "2"}], "Text",
-        FontSize->16], 
-       StyleBox[" ", "Text",
-        FontSize->16], 
-       StyleBox[
-        RowBox[{
-         StyleBox[
-          StyleBox["n", "Text",
-           FontSize->16], "Text",
-          FontSize->16], "or"}]], " ", 
-       StyleBox["for", "Text",
-        FontSize->16], 
-       StyleBox[" ", "Text",
-        FontSize->16], 
-       StyleBox[
-        StyleBox["l", "Text",
-         FontSize->16], "Text",
-        FontSize->16]}], 
-      StyleBox[" ", "Text",
-       FontSize->16], "\[NotEqual]", " ", 
-      StyleBox["2.", "Text",
-       FontSize->16]}]}]}], " ", "*)"}], "Text",
-  FontSize->16]], "Input",
- CellChangeTimes->{{3.8375718565336123`*^9, 
-  3.8375718598596373`*^9}},ExpressionUUID->"f8e52822-93c7-49bc-8970-\
-7931ba2b57b4"]
+      RowBox[{"-", "2"}], " ", "nor", " ", "for", " ", "l"}], "\[NotEqual]", 
+     "2."}]}]}], "*)"}]], "Input",
+ CellChangeTimes->{{3.8783727898449287`*^9, 
+  3.8783727898455877`*^9}},ExpressionUUID->"12c5cba5-1830-4414-88e3-\
+5e764c513e6d"]
 }, Open  ]],
 
 Cell[CellGroupData[{
@@ -1499,149 +464,154 @@ Cell[BoxData[
         RowBox[{"QNM", "."}]}]}]}], "  ", "*)"}],
     FontWeight->"Plain"], "\[IndentingNewLine]", "\[IndentingNewLine]", 
    RowBox[{
-    RowBox[{"af", "=", "0.69"}], ";", "   ", 
-    StyleBox[
-     RowBox[{"(*", " ", 
+    RowBox[{"af", "=", "0.69"}], ";"}], "   ", 
+   StyleBox[
+    RowBox[{"(*", " ", 
+     RowBox[{
       RowBox[{
+      "Dimensionless", " ", "spin", " ", "of", " ", "the", " ", "Kerr", " ", 
+       "black", " ", "hole"}], ";", " ", 
+      RowBox[{"af", " ", "\[Element]", " ", 
        RowBox[{
-       "Dimensionless", " ", "spin", " ", "of", " ", "the", " ", "Kerr", " ", 
-        "black", " ", "hole"}], ";", " ", 
-       RowBox[{"af", " ", "\[Element]", " ", 
         RowBox[{
-         RowBox[{
-          RowBox[{"[", 
-           RowBox[{"0", ",", "1"}], "]"}], ".", " ", "Setting"}], " ", "a", 
-         " ", "negative", " ", "value", " ", "af"}], " ", "\[Element]", " ", 
-        RowBox[{"[", 
-         RowBox[{
-          RowBox[{"-", "1"}], ",", 
-          RowBox[{"0", "[", " ", 
+         RowBox[{"[", 
+          RowBox[{"0", ",", "1"}], "]"}], ".", " ", "Setting"}], " ", "a", 
+        " ", "negative", " ", "value", " ", "af"}], " ", "\[Element]", " ", 
+       RowBox[{"[", 
+        RowBox[{
+         RowBox[{"-", "1"}], ",", 
+         RowBox[{"0", "[", " ", 
+          RowBox[{
            RowBox[{
             RowBox[{
              RowBox[{
               RowBox[{
-               RowBox[{
-               "is", " ", "also", " ", "possible", " ", "and", " ", "the", 
-                " ", "solution", " ", "obtained", "\[IndentingNewLine]", 
-                "\t\t", "can", " ", "be", " ", "equivalently", " ", 
-                "considered", " ", "as", " ", "a", " ", "counter"}], "-", 
-               RowBox[{
-               "rotating", " ", "mode", " ", "for", " ", "a", " ", "black", 
-                " ", "hole", " ", "of", " ", "spin"}]}], " ", "|", "af", "|", 
-              " ", 
-              RowBox[{"up", " ", "to", " ", "\[Omega]lmn"}]}], " ", "\[Rule]",
-              " ", 
-             RowBox[{
+              "is", " ", "also", " ", "possible", " ", "and", " ", "the", " ",
+                "solution", " ", "obtained", "\[IndentingNewLine]", "\t\t", 
+               "can", " ", "be", " ", "equivalently", " ", "considered", " ", 
+               "as", " ", "a", " ", "counter"}], "-", 
               RowBox[{
-               RowBox[{"-", " ", 
-                RowBox[{"Conjugate", "[", "\[Omega]lmn", "]"}]}], " ", "and", 
-               " ", "Almn"}], " ", "\[Rule]", " ", 
-              RowBox[{"Conjugate", "[", "Almn", "]"}]}]}], ",", 
-            "\[IndentingNewLine]", "\t\t\t", 
+              "rotating", " ", "mode", " ", "for", " ", "a", " ", "black", 
+               " ", "hole", " ", "of", " ", "spin"}]}], " ", "|", "af", "|", 
+             " ", 
+             RowBox[{"up", " ", "to", " ", "\[Omega]lmn"}]}], " ", "\[Rule]", 
+            " ", 
             RowBox[{
              RowBox[{
-             "or", " ", "as", " ", "a", " ", "corotating", " ", "mode", " ", 
-              "of", " ", "the", " ", "spheroidal", " ", "harmonic", " ", 
-              "mode", " ", 
-              RowBox[{"(", 
-               RowBox[{"l", ",", 
-                RowBox[{"-", "m"}]}], ")"}], " ", "for", " ", "a", " ", 
-              "black", " ", "hole", " ", "of", " ", "spin"}], " ", "|", "af", 
-             "|", "."}]}], " "}]}]}]}]}], "*)"}],
-     FontWeight->"Plain"], 
-    StyleBox[" ",
-     FontWeight->"Plain"], "\[IndentingNewLine]", "\[IndentingNewLine]", 
-    RowBox[{"nfreq", "=", "3"}], ";", "      ", 
-    StyleBox[
-     RowBox[{"(*", " ", 
-      RowBox[{
-       RowBox[{
-        RowBox[{"Number", " ", "of", " ", "inversions", " ", 
-         RowBox[{"(", "integer", ")"}], " ", "in", " ", "the", " ", 
-         "computation", " ", "of", " ", 
-         RowBox[{"Leaver", "'"}], "s", " ", "continued", " ", "fraction", " ",
-          "for", " ", 
-         RowBox[{
-         "\[Omega]lmn", ".", "\[IndentingNewLine]", "\t\t\t", "Setting"}], 
-         " ", "this", " ", "number", " ", "to", " ", "the", " ", "tone", " ", 
-         "index", " ", "n"}], "=", "0"}], ",", "1", ",", 
-       RowBox[{
-       "...", " ", "of", " ", "the", " ", "mode", " ", "looked", " ", "for"}],
-        ",", " ", 
-       RowBox[{"or", " ", "to", " ", "a", " ", "neighbouring", " ", "value"}],
-        ",", " ", 
-       RowBox[{
-        RowBox[{
-        "should", " ", "ensure", " ", "a", " ", "good", " ", "stability", 
-         "\[IndentingNewLine]", "\t\t\t ", "of", " ", "the", " ", 
-         RowBox[{"(", 
-          RowBox[{"l", ",", "m", ",", "n"}], ")"}], " ", "QNM", " ", 
-         "solution", " ", "for", " ", "the", " ", "root"}], "-", 
-        RowBox[{"finding", " ", 
-         RowBox[{"algorithm", ".", " ", "It"}], " ", "does", " ", "not", " ", 
-         "ensure", " ", "however", " ", "that", " ", "the", " ", "solution", 
-         " ", "found", " ", "is", " ", "indeed", " ", "the", " ", 
-         RowBox[{"(", 
-          RowBox[{"l", ",", "m", ",", "nfreq"}], ")"}], " ", "mode"}]}], ",", 
-       "\[IndentingNewLine]", "\t \t\t  ", 
-       RowBox[{
-       "as", " ", "the", " ", "solution", " ", "found", " ", "is", " ", 
-        "rather", " ", "determined", " ", "by", " ", "the", " ", "closest", 
-        " ", "mode", " ", "to", " ", "the", " ", "initial", " ", 
-        RowBox[{"guesses", "."}]}]}], " ", "*)"}],
-     FontWeight->"Plain"], "\[IndentingNewLine]", "\[IndentingNewLine]", 
-    RowBox[{"nang", " ", "=", " ", "0"}], ";", "      ", 
-    StyleBox[
-     RowBox[{"(*", " ", 
+              RowBox[{"-", " ", 
+               RowBox[{"Conjugate", "[", "\[Omega]lmn", "]"}]}], " ", "and", 
+              " ", "Almn"}], " ", "\[Rule]", " ", 
+             RowBox[{"Conjugate", "[", "Almn", "]"}]}]}], ",", 
+           "\[IndentingNewLine]", "\t\t\t", 
+           RowBox[{
+            RowBox[{
+            "or", " ", "as", " ", "a", " ", "corotating", " ", "mode", " ", 
+             "of", " ", "the", " ", "spheroidal", " ", "harmonic", " ", 
+             "mode", " ", 
+             RowBox[{"(", 
+              RowBox[{"l", ",", 
+               RowBox[{"-", "m"}]}], ")"}], " ", "for", " ", "a", " ", 
+             "black", " ", "hole", " ", "of", " ", "spin"}], " ", "|", "af", 
+            "|", "."}]}], " "}]}]}]}]}], "*)"}],
+    FontWeight->"Plain"], 
+   StyleBox[" ",
+    FontWeight->"Plain"], "\[IndentingNewLine]", "\[IndentingNewLine]", 
+   RowBox[{
+    RowBox[{"nfreq", "=", "3"}], ";"}], "      ", 
+   StyleBox[
+    RowBox[{"(*", " ", 
+     RowBox[{
       RowBox[{
        RowBox[{"Number", " ", "of", " ", "inversions", " ", 
         RowBox[{"(", "integer", ")"}], " ", "in", " ", "the", " ", 
         "computation", " ", "of", " ", 
         RowBox[{"Leaver", "'"}], "s", " ", "continued", " ", "fraction", " ", 
         "for", " ", 
-        RowBox[{"Almn", ".", "\[IndentingNewLine]", "\t\t\t ", "It"}], " ", 
-        "should", " ", "be", " ", "kept", " ", "at", " ", "nang"}], "=", 
+        RowBox[{
+        "\[Omega]lmn", ".", "\[IndentingNewLine]", "\t\t\t", "Setting"}], " ",
+         "this", " ", "number", " ", "to", " ", "the", " ", "tone", " ", 
+        "index", " ", "n"}], "=", "0"}], ",", "1", ",", 
+      RowBox[{
+      "...", " ", "of", " ", "the", " ", "mode", " ", "looked", " ", "for"}], 
+      ",", " ", 
+      RowBox[{"or", " ", "to", " ", "a", " ", "neighbouring", " ", "value"}], 
+      ",", " ", 
+      RowBox[{
        RowBox[{
-       "0", " ", "for", " ", "a", " ", "more", " ", "stable", " ", "recovey", 
-        " ", "of", " ", 
+       "should", " ", "ensure", " ", "a", " ", "good", " ", "stability", 
+        "\[IndentingNewLine]", "\t\t\t ", "of", " ", "the", " ", 
         RowBox[{"(", 
-         RowBox[{
-          RowBox[{"l", "=", "2"}], ",", "m", ",", "n"}], ")"}], " ", 
-        RowBox[{"modes", "."}]}]}], " ", "*)"}],
-     FontWeight->"Plain"], 
-    StyleBox[" ",
-     FontWeight->"Plain"], "\[IndentingNewLine]", "\[IndentingNewLine]", 
+         RowBox[{"l", ",", "m", ",", "n"}], ")"}], " ", "QNM", " ", 
+        "solution", " ", "for", " ", "the", " ", "root"}], "-", 
+       RowBox[{"finding", " ", 
+        RowBox[{"algorithm", ".", " ", "It"}], " ", "does", " ", "not", " ", 
+        "ensure", " ", "however", " ", "that", " ", "the", " ", "solution", 
+        " ", "found", " ", "is", " ", "indeed", " ", "the", " ", 
+        RowBox[{"(", 
+         RowBox[{"l", ",", "m", ",", "nfreq"}], ")"}], " ", "mode"}]}], ",", 
+      "\[IndentingNewLine]", "\t \t\t  ", 
+      RowBox[{
+      "as", " ", "the", " ", "solution", " ", "found", " ", "is", " ", 
+       "rather", " ", "determined", " ", "by", " ", "the", " ", "closest", 
+       " ", "mode", " ", "to", " ", "the", " ", "initial", " ", 
+       RowBox[{"guesses", "."}]}]}], " ", "*)"}],
+    FontWeight->"Plain"], "\[IndentingNewLine]", "\[IndentingNewLine]", 
+   RowBox[{
+    RowBox[{"nang", " ", "=", " ", "0"}], ";"}], "      ", 
+   StyleBox[
+    RowBox[{"(*", " ", 
+     RowBox[{
+      RowBox[{"Number", " ", "of", " ", "inversions", " ", 
+       RowBox[{"(", "integer", ")"}], " ", "in", " ", "the", " ", 
+       "computation", " ", "of", " ", 
+       RowBox[{"Leaver", "'"}], "s", " ", "continued", " ", "fraction", " ", 
+       "for", " ", 
+       RowBox[{"Almn", ".", "\[IndentingNewLine]", "\t\t\t ", "It"}], " ", 
+       "should", " ", "be", " ", "kept", " ", "at", " ", "nang"}], "=", 
+      RowBox[{
+      "0", " ", "for", " ", "a", " ", "more", " ", "stable", " ", "recovey", 
+       " ", "of", " ", 
+       RowBox[{"(", 
+        RowBox[{
+         RowBox[{"l", "=", "2"}], ",", "m", ",", "n"}], ")"}], " ", 
+       RowBox[{"modes", "."}]}]}], " ", "*)"}],
+    FontWeight->"Plain"], 
+   StyleBox[" ",
+    FontWeight->"Plain"], "\[IndentingNewLine]", "\[IndentingNewLine]", 
+   RowBox[{
     RowBox[{"winit", "=", 
      RowBox[{"0.37", "-", 
-      RowBox[{"0.62", "\[ImaginaryI]"}]}]}], ";", "        ", 
-    StyleBox[
-     RowBox[{"(*", " ", 
-      RowBox[{
-      "Initial", " ", "guess", " ", "for", " ", "the", " ", "complex", " ", 
-       "QNM", " ", 
-       RowBox[{"frequency", "."}]}], " ", "*)"}],
-     FontWeight->"Plain"], 
-    StyleBox["\[IndentingNewLine]", "Text"], 
+      RowBox[{"0.62", "\[ImaginaryI]"}]}]}], ";"}], "        ", 
+   StyleBox[
+    RowBox[{"(*", " ", 
+     RowBox[{
+     "Initial", " ", "guess", " ", "for", " ", "the", " ", "complex", " ", 
+      "QNM", " ", 
+      RowBox[{"frequency", "."}]}], " ", "*)"}],
+    FontWeight->"Plain"], 
+   StyleBox["\[IndentingNewLine]", "Text"], 
+   RowBox[{
     RowBox[{"winit2", "=", 
      RowBox[{"0.40", "-", 
-      RowBox[{"0.64", "\[ImaginaryI]"}]}]}], ";", "     ", 
-    StyleBox[
-     RowBox[{"(*", " ", 
+      RowBox[{"0.64", "\[ImaginaryI]"}]}]}], ";"}], "     ", 
+   StyleBox[
+    RowBox[{"(*", " ", 
+     RowBox[{
       RowBox[{
+      "Second", " ", "initial", " ", "guess", " ", "for", " ", "the", " ", 
+       "frequency", " ", 
        RowBox[{
-       "Second", " ", "initial", " ", "guess", " ", "for", " ", "the", " ", 
-        "frequency", " ", 
-        RowBox[{
-         RowBox[{"(", 
-          RowBox[{
-          "necessary", " ", "for", " ", "the", " ", "secant", " ", "method"}],
-           ")"}], ".", "\[IndentingNewLine]", "\t\t\t\t\t\t\t", "It"}], " ", 
-        "should", " ", "be", " ", "rather", " ", "close", " ", "to"}], ",", 
-       " ", 
-       RowBox[{"but", " ", "distinct", " ", "from"}], ",", " ", 
-       RowBox[{"the", " ", "first", " ", "initial", " ", "guess", " ", 
-        RowBox[{"above", "."}]}]}], " ", "*)"}],
-     FontWeight->"Plain"], "\[IndentingNewLine]", "\[IndentingNewLine]", 
+        RowBox[{"(", 
+         RowBox[{
+         "necessary", " ", "for", " ", "the", " ", "secant", " ", "method"}], 
+         ")"}], ".", "\[IndentingNewLine]", "\t\t\t\t\t\t\t", "It"}], " ", 
+       "should", " ", "be", " ", "rather", " ", "close", " ", "to"}], ",", 
+      " ", 
+      RowBox[{"but", " ", "distinct", " ", "from"}], ",", " ", 
+      RowBox[{"the", " ", "first", " ", "initial", " ", "guess", " ", 
+       RowBox[{"above", "."}]}]}], " ", "*)"}],
+    FontWeight->"Plain"], "\[IndentingNewLine]", "\[IndentingNewLine]", 
+   RowBox[{
     RowBox[{"Almninit", "=", 
      RowBox[{
       RowBox[{"l", "*", 
@@ -1649,73 +619,74 @@ Cell[BoxData[
         RowBox[{"l", "+", "1"}], ")"}]}], "-", 
       RowBox[{"s", "*", 
        RowBox[{"(", 
-        RowBox[{"s", "+", "1"}], ")"}]}]}]}], ";", "  ", 
-    StyleBox[
-     RowBox[{"(*", " ", 
+        RowBox[{"s", "+", "1"}], ")"}]}]}]}], ";"}], "  ", 
+   StyleBox[
+    RowBox[{"(*", " ", 
+     RowBox[{
+      RowBox[{
+      "Initialisation", " ", "of", " ", "Almn", " ", "to", " ", "its", " ", 
+       "Schwarzschild", " ", "value", " ", "for", " ", "this", " ", "choice", 
+       " ", "of", " ", "s", " ", "and", " ", 
+       RowBox[{"l", ".", "\[IndentingNewLine]", "\t\t\t\t\t\t\t\t", "In"}], 
+       " ", "most", " ", "cases"}], ",", " ", 
+      RowBox[{
+      "this", " ", "should", " ", "not", " ", "need", " ", "to", " ", "be", 
+       " ", 
+       RowBox[{"modified", "."}]}]}], " ", "*)"}],
+    FontWeight->"Plain"], "\[IndentingNewLine]", "\[IndentingNewLine]", 
+   "\[IndentingNewLine]", 
+   StyleBox[
+    RowBox[{"(*", " ", 
+     RowBox[{
       RowBox[{
        RowBox[{
-       "Initialisation", " ", "of", " ", "Almn", " ", "to", " ", "its", " ", 
-        "Schwarzschild", " ", "value", " ", "for", " ", "this", " ", "choice",
-         " ", "of", " ", "s", " ", "and", " ", 
-        RowBox[{"l", ".", "\[IndentingNewLine]", "\t\t\t\t\t\t\t\t", "In"}], 
-        " ", "most", " ", "cases"}], ",", " ", 
-       RowBox[{
-       "this", " ", "should", " ", "not", " ", "need", " ", "to", " ", "be", 
-        " ", 
-        RowBox[{"modified", "."}]}]}], " ", "*)"}],
-     FontWeight->"Plain"], "\[IndentingNewLine]", "\[IndentingNewLine]", 
-    "\[IndentingNewLine]", 
-    StyleBox[
-     RowBox[{"(*", " ", 
+       "The", " ", "continued", " ", "fractions", " ", "for", " ", 
+        "\[Omega]lmn", " ", "and", " ", "Almn", " ", "are", " ", "built", " ",
+         "at", " ", "each", " ", "iteration", " ", "ie"}], "=", "0"}], ",", 
+      "1", ",", 
+      RowBox[{"...", " ", "with", " ", "NITMAX", 
+       RowBox[{"(", "ie", ")"}], " ", "terms"}], ",", " ", 
       RowBox[{
-       RowBox[{
+       RowBox[{"with", " ", "NITMAX", 
+        RowBox[{"(", "ie", ")"}]}], " ", "=", " ", 
+       RowBox[{"nitFractionsStart", " ", "*", " ", 
         RowBox[{
-        "The", " ", "continued", " ", "fractions", " ", "for", " ", 
-         "\[Omega]lmn", " ", "and", " ", "Almn", " ", "are", " ", "built", 
-         " ", "at", " ", "each", " ", "iteration", " ", "ie"}], "=", "0"}], 
-       ",", "1", ",", 
-       RowBox[{"...", " ", "with", " ", "NITMAX", 
-        RowBox[{"(", "ie", ")"}], " ", "terms"}], ",", " ", 
-       RowBox[{
-        RowBox[{"with", " ", "NITMAX", 
-         RowBox[{"(", "ie", ")"}]}], " ", "=", " ", 
-        RowBox[{"nitFractionsStart", " ", "*", " ", 
-         RowBox[{
-          RowBox[{"nitFractionsFactor", "^", "ie"}], ".", "\n", "This"}], " ",
-          "value", " ", "of", " ", "NITMAX", " ", "may", " ", "optionally", 
-         " ", "be", " ", "reduced", " ", "by", " ", "a", " ", "factor", " ", 
-         "nitFractionsAngDecrFactor", " ", 
-         RowBox[{"(", 
-          RowBox[{
-           RowBox[{"e", ".", "g", ".", " ", "setting"}], " ", "this", " ", 
-           "parameter", " ", "to", " ", "10", " ", "or", " ", "20"}], ")"}], 
-         " ", "for", " ", "the", " ", "angular", " ", "sector", "\n", "for", 
-         " ", "a", " ", "moderate", " ", "gain", " ", "of", " ", 
-         "computation", " ", "time"}]}], ",", " ", 
-       RowBox[{
-       "as", " ", "the", " ", "computation", " ", "of", " ", "Almn", " ", 
-        "to", " ", "a", " ", "given", " ", "precision", " ", "typically", " ",
-         "requires", " ", "much", " ", "less", " ", "terms", " ", "in", " ", 
-        "its", " ", "continued", " ", "fraction", " ", "than", " ", "the", 
-        " ", "computation", " ", "of", " ", 
-        RowBox[{"\[Omega]lmn", ".", "\[IndentingNewLine]", "Once"}], " ", 
-        "at", " ", "least", " ", "niterMin", " ", "iterations", " ", "have", 
-        " ", "been", " ", "performed"}], ",", 
-       RowBox[{"this", " ", "loop", " ", "over", " ", 
+         RowBox[{"nitFractionsFactor", "^", "ie"}], ".", "\n", "This"}], " ", 
+        "value", " ", "of", " ", "NITMAX", " ", "may", " ", "optionally", " ",
+         "be", " ", "reduced", " ", "by", " ", "a", " ", "factor", " ", 
+        "nitFractionsAngDecrFactor", " ", 
         RowBox[{"(", 
-         RowBox[{"\[Omega]lmn", ",", "Almn"}], ")"}], " ", "stops", " ", "as",
-         " ", "soon", " ", "as", " ", "precisionThreshold", " ", "is", " ", 
-        "met", " ", "on", " ", "the", " ", "\[Omega]lmn", " ", "and", " ", 
-        "Almn", " ", "results", "\n", "over", " ", "two", " ", "consecutive", 
-        " ", 
-        RowBox[{"iterations", ".", " ", "If"}], " ", "this", " ", 
-        "convergence", " ", "criterion", " ", "fails", " ", "to", " ", "be", 
-        " ", "met"}], ",", " ", 
-       RowBox[{
-       "the", " ", "loop", " ", "is", " ", "stopped", " ", "anyway", " ", 
-        "after", " ", "niterMax", " ", 
-        RowBox[{"iterations", "."}]}]}], " ", "*)"}],
-     FontWeight->"Plain"], "\[IndentingNewLine]", 
+         RowBox[{
+          RowBox[{"e", ".", "g", ".", " ", "setting"}], " ", "this", " ", 
+          "parameter", " ", "to", " ", "10", " ", "or", " ", "20"}], ")"}], 
+        " ", "for", " ", "the", " ", "angular", " ", "sector", "\n", "for", 
+        " ", "a", " ", "moderate", " ", "gain", " ", "of", " ", "computation",
+         " ", "time"}]}], ",", " ", 
+      RowBox[{
+      "as", " ", "the", " ", "computation", " ", "of", " ", "Almn", " ", "to",
+        " ", "a", " ", "given", " ", "precision", " ", "typically", " ", 
+       "requires", " ", "much", " ", "less", " ", "terms", " ", "in", " ", 
+       "its", " ", "continued", " ", "fraction", " ", "than", " ", "the", " ",
+        "computation", " ", "of", " ", 
+       RowBox[{"\[Omega]lmn", ".", "\[IndentingNewLine]", "Once"}], " ", "at",
+        " ", "least", " ", "niterMin", " ", "iterations", " ", "have", " ", 
+       "been", " ", "performed"}], ",", 
+      RowBox[{"this", " ", "loop", " ", "over", " ", 
+       RowBox[{"(", 
+        RowBox[{"\[Omega]lmn", ",", "Almn"}], ")"}], " ", "stops", " ", "as", 
+       " ", "soon", " ", "as", " ", "precisionThreshold", " ", "is", " ", 
+       "met", " ", "on", " ", "the", " ", "\[Omega]lmn", " ", "and", " ", 
+       "Almn", " ", "results", "\n", "over", " ", "two", " ", "consecutive", 
+       " ", 
+       RowBox[{"iterations", ".", " ", "If"}], " ", "this", " ", 
+       "convergence", " ", "criterion", " ", "fails", " ", "to", " ", "be", 
+       " ", "met"}], ",", " ", 
+      RowBox[{
+      "the", " ", "loop", " ", "is", " ", "stopped", " ", "anyway", " ", 
+       "after", " ", "niterMax", " ", 
+       RowBox[{"iterations", "."}]}]}], " ", "*)"}],
+    FontWeight->"Plain"], "\[IndentingNewLine]", 
+   RowBox[{
     RowBox[{"nitFractionsStart", " ", "=", " ", "500"}], ";"}], 
    "\[IndentingNewLine]", 
    RowBox[{
@@ -1734,11 +705,10 @@ Cell[BoxData[
       RowBox[{"10", "^", 
        RowBox[{"(", 
         RowBox[{"-", "11"}], ")"}]}]}]}], ";"}], 
-   StyleBox["\[IndentingNewLine]", "Text"], 
    StyleBox["\[IndentingNewLine]", "Text",
     FontWeight->"Plain"], "\[IndentingNewLine]", 
    StyleBox["\[IndentingNewLine]", "Text",
-    FontWeight->"Plain"], "\[IndentingNewLine]", 
+    FontWeight->"Plain"], "\[IndentingNewLine]", "\[IndentingNewLine]", 
    StyleBox[
     RowBox[{"(*", " ", 
      RowBox[{
@@ -1746,7 +716,8 @@ Cell[BoxData[
       "additional", " ", "dependent", " ", "parameters", " ", "should", " ", 
       "not", " ", "be", " ", 
       RowBox[{"modified", "."}]}], " ", "*)"}],
-    FontWeight->"Plain"], "\[IndentingNewLine]", "\[IndentingNewLine]", 
+    FontWeight->"Plain"], "\[IndentingNewLine]", 
+   StyleBox["\[IndentingNewLine]", "Text"], 
    RowBox[{
     RowBox[{"k1", "=", 
      RowBox[{
@@ -1776,14 +747,13 @@ Cell[BoxData[
       RowBox[{"k1pk2", "*", 
        RowBox[{"(", 
         RowBox[{"k1pk2", "+", "1"}], ")"}]}]}]}], ";"}], 
-   "\[IndentingNewLine]", 
-   StyleBox["\[IndentingNewLine]", "Text"], 
+   StyleBox["\[IndentingNewLine]", "Text"], "\[IndentingNewLine]", 
    RowBox[{
     RowBox[{"br", "=", 
      RowBox[{"Sqrt", "[", 
       RowBox[{"1", "-", 
-       RowBox[{"af", "^", "2"}]}], "]"}]}], ";"}], "\[IndentingNewLine]", 
-   StyleBox["\[IndentingNewLine]", "Text"], 
+       RowBox[{"af", "^", "2"}]}], "]"}]}], ";"}], 
+   StyleBox["\[IndentingNewLine]", "Text"], "\[IndentingNewLine]", 
    RowBox[{
     RowBox[{
      RowBox[{"\[Gamma]", "[", 
@@ -5357,10 +4327,11 @@ Grav. ",
  StyleBox["26",
   FontWeight->"Bold"],
  ":163001 (2009).  [arXiv: 0905.2975]\n\n[5] V. Cardoso, \
-https://centra.tecnico.ulisboa.pt/network/grit/files/ringdown/\n\n[6] E. Berti, \
-https://pages.jh.edu/~eberti2/ringdown/\n\n[7] F. Jim\[EAcute]nez Forteza and \
-P. Mourier, \"High-overtone fits to numerical relativity ringdowns: beyond \
-the dismissed n=8 special tone\".  (2021).  [arXiv: 2107.11829]"
+https://centra.tecnico.ulisboa.pt/network/grit/files/ringdown/\n\n[6] E. \
+Berti, https://pages.jh.edu/~eberti2/ringdown/\n\n[7] F. Jim\[EAcute]nez \
+Forteza and P. Mourier, \"High-overtone fits to numerical relativity \
+ringdowns: beyond the dismissed n=8 special tone\".  (2021).  [arXiv: \
+2107.11829]"
 }], "Text",
  CellChangeTimes->{{3.833524510837137*^9, 3.833524514283379*^9}, {
   3.8370591923046637`*^9, 3.837059382733436*^9}, {3.837059439590603*^9, 
@@ -5389,95 +4360,94 @@ CellTagsIndex->{}
 (*NotebookFileOutline
 Notebook[{
 Cell[CellGroupData[{
-Cell[422, 15, 17085, 235, 284, "Title",ExpressionUUID->"9e8dd7a4-5a9f-413f-b1ac-8b3678f26803"],
+Cell[580, 22, 17085, 235, 284, "Title",ExpressionUUID->"9e8dd7a4-5a9f-413f-b1ac-8b3678f26803"],
 Cell[CellGroupData[{
-Cell[17532, 254, 154, 3, 67, "Section",ExpressionUUID->"41996d56-f765-428b-988f-3de6a579e9b2"],
-Cell[17689, 259, 2725, 55, 283, "Input",ExpressionUUID->"b728dd79-8990-4897-8917-3e0d15925d62"]
+Cell[17690, 261, 154, 3, 67, "Section",ExpressionUUID->"41996d56-f765-428b-988f-3de6a579e9b2"],
+Cell[17847, 266, 2725, 55, 283, "Input",ExpressionUUID->"b728dd79-8990-4897-8917-3e0d15925d62"],
+Cell[20575, 323, 4004, 80, 241, "Input",ExpressionUUID->"12c5cba5-1830-4414-88e3-5e764c513e6d"]
 }, Open  ]],
 Cell[CellGroupData[{
-Cell[20451, 319, 156, 3, 67, "Section",ExpressionUUID->"66fb992c-5d49-4a84-9f54-fde304302321"],
-Cell[20610, 324, 31051, 1112, 347, "Input",ExpressionUUID->"f8e52822-93c7-49bc-8970-7931ba2b57b4"]
+Cell[24616, 408, 151, 3, 67, "Section",ExpressionUUID->"79e11e7e-e348-4087-ac26-e383e069a79b"],
+Cell[24770, 413, 35427, 706, 1312, "Code",ExpressionUUID->"2072538e-d313-4e31-b150-bb3ac6787e8c"],
+Cell[CellGroupData[{
+Cell[60222, 1123, 32137, 626, 70, "Code",ExpressionUUID->"eb3f12b5-45fb-4b55-9003-31b4161a71da"],
+Cell[CellGroupData[{
+Cell[92384, 1753, 1590, 24, 70, "Print",ExpressionUUID->"45de8a09-788b-4040-b819-ebb3a50342e3"],
+Cell[93977, 1779, 1969, 38, 70, "Print",ExpressionUUID->"d209b63e-82d5-43d6-9812-b46a1aeb1450"],
+Cell[95949, 1819, 1971, 38, 70, "Print",ExpressionUUID->"f64f9642-939e-48f5-8048-33f7f6e97888"],
+Cell[97923, 1859, 2204, 45, 70, "Print",ExpressionUUID->"eee900ae-40c1-4a39-8bc4-53f56f3ab50c"],
+Cell[100130, 1906, 1592, 24, 70, "Print",ExpressionUUID->"a6fef7d2-1fc6-4fd1-bcf3-1b19add58c74"],
+Cell[101725, 1932, 1969, 38, 70, "Print",ExpressionUUID->"638d64d1-62c4-46f3-bab6-f0785d200d37"],
+Cell[103697, 1972, 1971, 38, 70, "Print",ExpressionUUID->"4c47fe7f-f308-4ae2-8ab5-e6605fabfd40"],
+Cell[105671, 2012, 2200, 45, 70, "Print",ExpressionUUID->"78e37e64-7d28-4e85-a750-2eb1aa69ccb8"],
+Cell[107874, 2059, 1590, 24, 70, "Print",ExpressionUUID->"858fb48c-e23c-441b-950a-704ba36d20ae"],
+Cell[109467, 2085, 1971, 38, 70, "Print",ExpressionUUID->"87d791de-1858-451d-ac09-671efb6bdf11"],
+Cell[111441, 2125, 1971, 38, 70, "Print",ExpressionUUID->"b884516e-9230-46b5-982c-e7412cbc7a7c"],
+Cell[113415, 2165, 2206, 45, 70, "Print",ExpressionUUID->"ad217e85-b709-496d-b969-b888ff9e1220"],
+Cell[115624, 2212, 1592, 24, 70, "Print",ExpressionUUID->"92f22890-a25f-4c62-8303-69d0e44310a4"],
+Cell[117219, 2238, 1971, 38, 70, "Print",ExpressionUUID->"e4aabbd3-69d0-4bf1-b787-849b56620f57"],
+Cell[119193, 2278, 1973, 38, 70, "Print",ExpressionUUID->"3428b11a-5f2d-4f28-9db1-3e8dcc42fb50"],
+Cell[121169, 2318, 2212, 45, 70, "Print",ExpressionUUID->"430491b3-d78b-4af9-bde7-e97ca6b72ca3"],
+Cell[123384, 2365, 1590, 24, 70, "Print",ExpressionUUID->"68b3215c-1fff-477c-9f67-b4bb28dd12c3"],
+Cell[124977, 2391, 1968, 38, 70, "Print",ExpressionUUID->"579bff48-3896-404e-aeea-9bde94ad5359"],
+Cell[126948, 2431, 1973, 38, 70, "Print",ExpressionUUID->"8421f103-0a71-46df-819f-1cb85b231500"],
+Cell[128924, 2471, 2210, 45, 70, "Print",ExpressionUUID->"d7c4e1c7-a7af-4699-b6ab-7753f5ff76b5"],
+Cell[131137, 2518, 1590, 24, 70, "Print",ExpressionUUID->"0bdfc875-4571-4b9f-9eb3-e4dfba526c0b"],
+Cell[132730, 2544, 1969, 38, 70, "Print",ExpressionUUID->"1a36fdf7-808d-44a2-8a3a-735d37c39f3a"],
+Cell[134702, 2584, 1969, 38, 70, "Print",ExpressionUUID->"f8430c6c-835f-42bb-94a8-fccebe6d7320"],
+Cell[136674, 2624, 2214, 45, 70, "Print",ExpressionUUID->"d2404cec-623a-48c3-acf1-dc84ff5461aa"],
+Cell[138891, 2671, 1590, 24, 70, "Print",ExpressionUUID->"82c64770-f1be-4e48-ba61-2a036863fd71"],
+Cell[140484, 2697, 1971, 38, 70, "Print",ExpressionUUID->"e594b5d2-acb2-4520-9fb1-785e48c825dc"],
+Cell[142458, 2737, 1969, 38, 70, "Print",ExpressionUUID->"531b45a5-afdb-4406-93ca-e32d4ec76b43"],
+Cell[144430, 2777, 2358, 49, 70, "Print",ExpressionUUID->"eb2d655b-4978-49a5-925b-30a77ffa05e3"],
+Cell[146791, 2828, 1590, 24, 70, "Print",ExpressionUUID->"7fa33cb4-2568-4a5d-a4d2-a19082fdf064"],
+Cell[148384, 2854, 1973, 38, 70, "Print",ExpressionUUID->"2e156d81-908b-43eb-a441-ebf2f16b3553"],
+Cell[150360, 2894, 1971, 38, 70, "Print",ExpressionUUID->"86f82ce4-a835-4079-88f7-af30b126d95d"],
+Cell[152334, 2934, 2360, 49, 70, "Print",ExpressionUUID->"221d8612-1092-4130-873d-6c01ad636332"],
+Cell[154697, 2985, 1590, 24, 70, "Print",ExpressionUUID->"63b3dcbf-f738-49fa-aac1-7b4a93bf6602"],
+Cell[156290, 3011, 1971, 38, 70, "Print",ExpressionUUID->"4ace27bf-2cc7-4e52-b023-b93a68ac3577"],
+Cell[158264, 3051, 1971, 38, 70, "Print",ExpressionUUID->"05d15874-bbe8-4167-91b9-4f6440eb2663"],
+Cell[160238, 3091, 2362, 49, 70, "Print",ExpressionUUID->"886c28fe-700d-497a-9ab5-1765fc21b3cc"],
+Cell[162603, 3142, 1593, 24, 70, "Print",ExpressionUUID->"71c84a8d-7492-40ba-8374-7ec44d0cf9e6"],
+Cell[164199, 3168, 1969, 38, 70, "Print",ExpressionUUID->"d9ca8daa-db21-45fe-9420-29b6183e2c60"],
+Cell[166171, 3208, 1968, 38, 70, "Print",ExpressionUUID->"d8411e81-5d81-493d-b4cd-d324b87def13"],
+Cell[168142, 3248, 2360, 49, 70, "Print",ExpressionUUID->"ff117f98-d8bf-4b7b-9740-f1023565ccb2"],
+Cell[170505, 3299, 1593, 24, 70, "Print",ExpressionUUID->"0d5fbb56-0cdc-4043-8584-9415666f5261"],
+Cell[172101, 3325, 1969, 38, 70, "Print",ExpressionUUID->"648f76b7-78eb-4c0b-a972-9f68d119c4a8"],
+Cell[174073, 3365, 1971, 38, 70, "Print",ExpressionUUID->"493f6b81-ef0b-4d94-acfb-1f8c94d3fc10"],
+Cell[176047, 3405, 2358, 49, 70, "Print",ExpressionUUID->"fdaad76e-b98d-4c55-89dd-0a605e1aff92"],
+Cell[178408, 3456, 1591, 24, 70, "Print",ExpressionUUID->"05308e5d-72c2-4b54-b809-203ea355a239"],
+Cell[180002, 3482, 1971, 38, 70, "Print",ExpressionUUID->"2d046b17-43f3-4338-88e6-4c2515ab64c3"],
+Cell[181976, 3522, 1971, 38, 70, "Print",ExpressionUUID->"15df9e71-75b1-43a8-b030-f90f75ecaed7"],
+Cell[183950, 3562, 2368, 49, 70, "Print",ExpressionUUID->"d205a297-9453-4e8b-9ac3-d2425a69a553"],
+Cell[186321, 3613, 1591, 24, 70, "Print",ExpressionUUID->"fc46d8c0-6d9c-4886-897e-a10c0034435d"],
+Cell[187915, 3639, 1969, 38, 70, "Print",ExpressionUUID->"a53d3d85-9747-4f78-b2ac-ace402e8866e"],
+Cell[189887, 3679, 1968, 38, 70, "Print",ExpressionUUID->"50d2ab20-849e-4961-be5d-806233ca422a"],
+Cell[191858, 3719, 2364, 49, 70, "Print",ExpressionUUID->"300a745f-0746-44c2-83bf-7e85fbe6f7be"],
+Cell[194225, 3770, 1591, 24, 70, "Print",ExpressionUUID->"de785e94-6f0f-4f5f-bcf0-43d05bd903bd"],
+Cell[195819, 3796, 1968, 38, 70, "Print",ExpressionUUID->"514aa991-fd29-4596-9a03-630b8ee86589"],
+Cell[197790, 3836, 1973, 38, 70, "Print",ExpressionUUID->"e20f5879-4c5c-4d6c-b311-73be4c9ca495"],
+Cell[199766, 3876, 2362, 49, 70, "Print",ExpressionUUID->"ebd91339-3387-4a36-b96f-30495819f518"],
+Cell[202131, 3927, 1590, 24, 70, "Print",ExpressionUUID->"d8fb398c-2d1a-468a-8d94-3a5aae4e7bef"],
+Cell[203724, 3953, 1972, 38, 70, "Print",ExpressionUUID->"e6e76906-c514-4a11-a07a-ea50c423a005"],
+Cell[205699, 3993, 1971, 38, 70, "Print",ExpressionUUID->"3d7b0422-ea40-4789-ad93-ac692c24ce83"],
+Cell[207673, 4033, 2364, 49, 70, "Print",ExpressionUUID->"bdbe2093-3a8b-4915-8856-b8ab4132d6e7"]
+}, Open  ]],
+Cell[210052, 4085, 1582, 25, 70, "Output",ExpressionUUID->"64384d85-ae1f-42c9-a1c0-fc04e45367ae"]
 }, Open  ]],
 Cell[CellGroupData[{
-Cell[51698, 1441, 151, 3, 67, "Section",ExpressionUUID->"79e11e7e-e348-4087-ac26-e383e069a79b"],
-Cell[51852, 1446, 35547, 701, 1312, "Code",ExpressionUUID->"2072538e-d313-4e31-b150-bb3ac6787e8c"],
-Cell[CellGroupData[{
-Cell[87424, 2151, 32135, 626, 1751, "Code",ExpressionUUID->"eb3f12b5-45fb-4b55-9003-31b4161a71da"],
-Cell[CellGroupData[{
-Cell[119584, 2781, 1590, 24, 24, "Print",ExpressionUUID->"45de8a09-788b-4040-b819-ebb3a50342e3"],
-Cell[121177, 2807, 1969, 38, 24, "Print",ExpressionUUID->"d209b63e-82d5-43d6-9812-b46a1aeb1450"],
-Cell[123149, 2847, 1971, 38, 24, "Print",ExpressionUUID->"f64f9642-939e-48f5-8048-33f7f6e97888"],
-Cell[125123, 2887, 2204, 45, 24, "Print",ExpressionUUID->"eee900ae-40c1-4a39-8bc4-53f56f3ab50c"],
-Cell[127330, 2934, 1592, 24, 24, "Print",ExpressionUUID->"a6fef7d2-1fc6-4fd1-bcf3-1b19add58c74"],
-Cell[128925, 2960, 1969, 38, 24, "Print",ExpressionUUID->"638d64d1-62c4-46f3-bab6-f0785d200d37"],
-Cell[130897, 3000, 1971, 38, 24, "Print",ExpressionUUID->"4c47fe7f-f308-4ae2-8ab5-e6605fabfd40"],
-Cell[132871, 3040, 2200, 45, 24, "Print",ExpressionUUID->"78e37e64-7d28-4e85-a750-2eb1aa69ccb8"],
-Cell[135074, 3087, 1590, 24, 24, "Print",ExpressionUUID->"858fb48c-e23c-441b-950a-704ba36d20ae"],
-Cell[136667, 3113, 1971, 38, 24, "Print",ExpressionUUID->"87d791de-1858-451d-ac09-671efb6bdf11"],
-Cell[138641, 3153, 1971, 38, 24, "Print",ExpressionUUID->"b884516e-9230-46b5-982c-e7412cbc7a7c"],
-Cell[140615, 3193, 2206, 45, 24, "Print",ExpressionUUID->"ad217e85-b709-496d-b969-b888ff9e1220"],
-Cell[142824, 3240, 1592, 24, 24, "Print",ExpressionUUID->"92f22890-a25f-4c62-8303-69d0e44310a4"],
-Cell[144419, 3266, 1971, 38, 24, "Print",ExpressionUUID->"e4aabbd3-69d0-4bf1-b787-849b56620f57"],
-Cell[146393, 3306, 1973, 38, 24, "Print",ExpressionUUID->"3428b11a-5f2d-4f28-9db1-3e8dcc42fb50"],
-Cell[148369, 3346, 2212, 45, 24, "Print",ExpressionUUID->"430491b3-d78b-4af9-bde7-e97ca6b72ca3"],
-Cell[150584, 3393, 1590, 24, 24, "Print",ExpressionUUID->"68b3215c-1fff-477c-9f67-b4bb28dd12c3"],
-Cell[152177, 3419, 1968, 38, 24, "Print",ExpressionUUID->"579bff48-3896-404e-aeea-9bde94ad5359"],
-Cell[154148, 3459, 1973, 38, 24, "Print",ExpressionUUID->"8421f103-0a71-46df-819f-1cb85b231500"],
-Cell[156124, 3499, 2210, 45, 24, "Print",ExpressionUUID->"d7c4e1c7-a7af-4699-b6ab-7753f5ff76b5"],
-Cell[158337, 3546, 1590, 24, 24, "Print",ExpressionUUID->"0bdfc875-4571-4b9f-9eb3-e4dfba526c0b"],
-Cell[159930, 3572, 1969, 38, 24, "Print",ExpressionUUID->"1a36fdf7-808d-44a2-8a3a-735d37c39f3a"],
-Cell[161902, 3612, 1969, 38, 24, "Print",ExpressionUUID->"f8430c6c-835f-42bb-94a8-fccebe6d7320"],
-Cell[163874, 3652, 2214, 45, 24, "Print",ExpressionUUID->"d2404cec-623a-48c3-acf1-dc84ff5461aa"],
-Cell[166091, 3699, 1590, 24, 24, "Print",ExpressionUUID->"82c64770-f1be-4e48-ba61-2a036863fd71"],
-Cell[167684, 3725, 1971, 38, 24, "Print",ExpressionUUID->"e594b5d2-acb2-4520-9fb1-785e48c825dc"],
-Cell[169658, 3765, 1969, 38, 24, "Print",ExpressionUUID->"531b45a5-afdb-4406-93ca-e32d4ec76b43"],
-Cell[171630, 3805, 2358, 49, 25, "Print",ExpressionUUID->"eb2d655b-4978-49a5-925b-30a77ffa05e3"],
-Cell[173991, 3856, 1590, 24, 24, "Print",ExpressionUUID->"7fa33cb4-2568-4a5d-a4d2-a19082fdf064"],
-Cell[175584, 3882, 1973, 38, 24, "Print",ExpressionUUID->"2e156d81-908b-43eb-a441-ebf2f16b3553"],
-Cell[177560, 3922, 1971, 38, 24, "Print",ExpressionUUID->"86f82ce4-a835-4079-88f7-af30b126d95d"],
-Cell[179534, 3962, 2360, 49, 25, "Print",ExpressionUUID->"221d8612-1092-4130-873d-6c01ad636332"],
-Cell[181897, 4013, 1590, 24, 24, "Print",ExpressionUUID->"63b3dcbf-f738-49fa-aac1-7b4a93bf6602"],
-Cell[183490, 4039, 1971, 38, 24, "Print",ExpressionUUID->"4ace27bf-2cc7-4e52-b023-b93a68ac3577"],
-Cell[185464, 4079, 1971, 38, 24, "Print",ExpressionUUID->"05d15874-bbe8-4167-91b9-4f6440eb2663"],
-Cell[187438, 4119, 2362, 49, 25, "Print",ExpressionUUID->"886c28fe-700d-497a-9ab5-1765fc21b3cc"],
-Cell[189803, 4170, 1593, 24, 24, "Print",ExpressionUUID->"71c84a8d-7492-40ba-8374-7ec44d0cf9e6"],
-Cell[191399, 4196, 1969, 38, 24, "Print",ExpressionUUID->"d9ca8daa-db21-45fe-9420-29b6183e2c60"],
-Cell[193371, 4236, 1968, 38, 24, "Print",ExpressionUUID->"d8411e81-5d81-493d-b4cd-d324b87def13"],
-Cell[195342, 4276, 2360, 49, 25, "Print",ExpressionUUID->"ff117f98-d8bf-4b7b-9740-f1023565ccb2"],
-Cell[197705, 4327, 1593, 24, 24, "Print",ExpressionUUID->"0d5fbb56-0cdc-4043-8584-9415666f5261"],
-Cell[199301, 4353, 1969, 38, 24, "Print",ExpressionUUID->"648f76b7-78eb-4c0b-a972-9f68d119c4a8"],
-Cell[201273, 4393, 1971, 38, 24, "Print",ExpressionUUID->"493f6b81-ef0b-4d94-acfb-1f8c94d3fc10"],
-Cell[203247, 4433, 2358, 49, 25, "Print",ExpressionUUID->"fdaad76e-b98d-4c55-89dd-0a605e1aff92"],
-Cell[205608, 4484, 1591, 24, 24, "Print",ExpressionUUID->"05308e5d-72c2-4b54-b809-203ea355a239"],
-Cell[207202, 4510, 1971, 38, 24, "Print",ExpressionUUID->"2d046b17-43f3-4338-88e6-4c2515ab64c3"],
-Cell[209176, 4550, 1971, 38, 24, "Print",ExpressionUUID->"15df9e71-75b1-43a8-b030-f90f75ecaed7"],
-Cell[211150, 4590, 2368, 49, 25, "Print",ExpressionUUID->"d205a297-9453-4e8b-9ac3-d2425a69a553"],
-Cell[213521, 4641, 1591, 24, 24, "Print",ExpressionUUID->"fc46d8c0-6d9c-4886-897e-a10c0034435d"],
-Cell[215115, 4667, 1969, 38, 24, "Print",ExpressionUUID->"a53d3d85-9747-4f78-b2ac-ace402e8866e"],
-Cell[217087, 4707, 1968, 38, 24, "Print",ExpressionUUID->"50d2ab20-849e-4961-be5d-806233ca422a"],
-Cell[219058, 4747, 2364, 49, 25, "Print",ExpressionUUID->"300a745f-0746-44c2-83bf-7e85fbe6f7be"],
-Cell[221425, 4798, 1591, 24, 24, "Print",ExpressionUUID->"de785e94-6f0f-4f5f-bcf0-43d05bd903bd"],
-Cell[223019, 4824, 1968, 38, 24, "Print",ExpressionUUID->"514aa991-fd29-4596-9a03-630b8ee86589"],
-Cell[224990, 4864, 1973, 38, 24, "Print",ExpressionUUID->"e20f5879-4c5c-4d6c-b311-73be4c9ca495"],
-Cell[226966, 4904, 2362, 49, 25, "Print",ExpressionUUID->"ebd91339-3387-4a36-b96f-30495819f518"],
-Cell[229331, 4955, 1590, 24, 24, "Print",ExpressionUUID->"d8fb398c-2d1a-468a-8d94-3a5aae4e7bef"],
-Cell[230924, 4981, 1972, 38, 24, "Print",ExpressionUUID->"e6e76906-c514-4a11-a07a-ea50c423a005"],
-Cell[232899, 5021, 1971, 38, 24, "Print",ExpressionUUID->"3d7b0422-ea40-4789-ad93-ac692c24ce83"],
-Cell[234873, 5061, 2364, 49, 25, "Print",ExpressionUUID->"bdbe2093-3a8b-4915-8856-b8ab4132d6e7"]
-}, Open  ]],
-Cell[237252, 5113, 1582, 25, 34, "Output",ExpressionUUID->"64384d85-ae1f-42c9-a1c0-fc04e45367ae"]
-}, Open  ]],
-Cell[CellGroupData[{
-Cell[238871, 5143, 5412, 121, 225, "Code",ExpressionUUID->"bfeae47f-973a-4aed-b04a-435e31f39391"],
-Cell[244286, 5266, 2079, 61, 47, "Output",ExpressionUUID->"586e71a7-b60f-4221-aad5-e8a6d7a9603f"]
+Cell[211671, 4115, 5412, 121, 70, "Code",ExpressionUUID->"bfeae47f-973a-4aed-b04a-435e31f39391"],
+Cell[217086, 4238, 2079, 61, 70, "Output",ExpressionUUID->"586e71a7-b60f-4221-aad5-e8a6d7a9603f"]
 }, Open  ]]
 }, Open  ]],
 Cell[CellGroupData[{
-Cell[246414, 5333, 84, 0, 67, "Section",ExpressionUUID->"942e8622-05bb-4b63-a5c4-1d9cf471fe53"],
-Cell[246501, 5335, 1584, 31, 311, "Text",ExpressionUUID->"a6b0bd28-7602-4a2e-9ce0-99abeeb53daf"]
+Cell[219214, 4305, 84, 0, 70, "Section",ExpressionUUID->"942e8622-05bb-4b63-a5c4-1d9cf471fe53"],
+Cell[219301, 4307, 1670, 33, 70, "Text",ExpressionUUID->"a6b0bd28-7602-4a2e-9ce0-99abeeb53daf"]
 }, Open  ]]
 }, Open  ]]
 }
 ]
 *)
+
+(* End of internal cache information *)
 
